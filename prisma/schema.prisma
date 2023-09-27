@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  // id value here should be mapped to _id in the db
+  // @db.ObjectId indicates that the id field in the db
+  // should be of type ObjectId
+  // all the @ combined are called a decorator, this is from the 
+  // prisma docs to use with a mongodb db
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String  @db.ObjectId
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.String
+  access_token       String?  @db.String
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.String
+  session_state      String?
+
+// mapping User model to the userId in this model, and referencing
+// the id from the User model
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  // id value here should be mapped to _id in the db
+  // @db.ObjectId indicates that the id field in the db
+  // should be of type ObjectId
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  name              String?
+  firstName         String?
+  lastNames         String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  hashedPassword    String?
+  accounts          Account[]
+  sessions          Session[]
+  roles             Role[]  
+  clinics           Clinic[] @relation("UserToClinic")
+}
+
+enum Role {
+  SYSTEMADMIN
+  CLINICOWNER
+  CLINICEMPLOYEE
+}
+
+
+model Clinic {
+  // below 3 created by prisma (id of store etc)
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  name              String
+  // Targetting the field email, and refering to email from User model
+  email             String
+  user              User @relation("UserToClinic", fields: [email], references: [email])
+}
+
+// model Billboard {
+//   id        String @id @default(uuid())
+//   storeId   String
+//   // Targetting the field storeId, and refering to id from Store model
+//   store      Store @relation("StoreToBillboard", fields: [storeId], references: [id])
+//   label     String
+//   imageUrl  String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt 
+//   // Billboard can have multiple categories
+//   categories Category[]
+  
+// // fixes error with relation
+//   @@index([storeId])
+// }
+
+
+// model Category {
+//   id        String @id @default(uuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   name      String
+//   storeId   String
+//   // targetting the field storeId, and refering to id from Store model
+//   store     Store @relation("StoreToCategory", fields: [storeId], references: [id])
+//   billboardId String
+//   // field billboardId is the referenced id from model Billboard
+//   // each category can only have 1 billboard
+//   billboard Billboard @relation(fields: [billboardId], references: [id])
+//   products  Product[] @relation("CategoryToProduct")
+
+// // fixes error with relation
+//   @@index([storeId])
+//   @@index([billboardId])
+// }
+
+// model Size {
+//   id String @id @default(uuid())
+//   storeId String
+//   // Size can only exist inside a specific store
+//   // targetting the field storeId, and refering to id from Store model
+//   store Store @relation("StoreToSize", fields: [storeId], references: [id])
+//   products Product[]
+//   name String
+//   value String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+// // fixes error with relation
+//   @@index([storeId])
+// }
+
+// model Color {
+//   id String @id @default(uuid())
+//   storeId String
+//   // Color can only exist inside a specific store
+//   // targetting the field storeId, and refering to id from Store model
+//   store Store @relation("StoreToColor", fields: [storeId], references: [id])
+//   name String
+//   value String
+//   products Product[]
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+// // fixes error with relation
+//   @@index([storeId])
+// }
+
+// model Product {
+//   id String @id @default(uuid())
+//   // Color can only exist inside a specific store
+//   // targetting the field storeId, and refering to id from Store model
+//   storeId String
+//   store Store @relation("StoreToProduct", fields: [storeId], references: [id])
+//   categoryId String
+//   category Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
+//   name String
+//   price Decimal
+//   isFeatured Boolean @default(false)
+//   isArchived Boolean @default(false)
+//   sizeId String
+//   size Size @relation(fields: [sizeId], references: [id])
+//   colorId String
+//   color Color @relation(fields: [colorId], references: [id])
+//   images Image[]
+//   orderItems OrderItem[]
+
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+// // fixes error with relation
+//   @@index([storeId])
+//   @@index([categoryId])
+//   @@index([sizeId])
+//   @@index([colorId])
+// }
+
+// // to be used with Product only, hence we want to use onDelete
+// // here so when product is deleted, its images are also deleted
+// // with it and wont get error message
+// model Image {
+//   id String @id @default(uuid())
+//   productId String
+//   // cascade allows us to delete product
+//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   url String
+//  createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([productId])
+// }
+
+// model Order {
+//   id String @id @default(uuid())
+//   storeId String
+//   // Model can only exist inside a specific store
+//   // targetting the field storeId, and refering to id from Store model
+//   store Store @relation("StoreToOrder", fields: [storeId], references: [id])
+//   orderItems OrderItem[]
+//   isPaid Boolean @default(false)
+//   phone String @default("")
+//   address String @default("")
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   @@index([storeId])
+// }
+
+// model OrderItem {
+//   id String @id @default(uuid())
+//   orderId String
+//   order Order @relation(fields: [orderId], references: [id])
+//   productId String
+//   product Product @relation(fields: [productId], references: [id])
+
+
+//   @@index([productId])
+//   @@index([orderId])
+// }
+
+// at end run npx prisma generate before using query
+// then npx prisma db push
+// npx prisma migrate reset to delete all data
