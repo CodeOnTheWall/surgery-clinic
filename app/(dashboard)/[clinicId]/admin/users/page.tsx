@@ -13,7 +13,7 @@ import AdminUsersClient from "./components/AdminUsersClient";
 
 // add redirect if user isnt admin admin, check to see if session
 // has information from credentials
-export default async function Register() {
+export default async function AdminUsersClientPage() {
   const session = getServerSession(authOptions);
   // callbackUrl will be the url that is loaded after signin
   if (!session) {
@@ -24,6 +24,9 @@ export default async function Register() {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      clinics: true,
+    },
   });
 
   // formattedUsers is an array
@@ -33,6 +36,7 @@ export default async function Register() {
     lastNames: user.lastNames,
     email: user.email,
     roles: user.roles.map((role) => role).join(", "),
+    clinics: user.clinics.map((clinic) => clinic.name).join(", "),
     // formating to string
     createdAt: format(user.createdAt, "MMMM do, yyyy"),
     updatedAt: format(user.updatedAt, "MMMM do, yyyy"),

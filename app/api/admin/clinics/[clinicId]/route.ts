@@ -7,52 +7,49 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // ADMIN
-// IN THIS API ROUTE - INDIVIDUAL USER - UPDATE/DELETE
+// IN THIS API ROUTE - INDIVIDUAL CLINIC - UPDATE/DELETE
 
 // API FOR UPDATING USER - PROTECTED
 // User will have to be logged in first to update user AND be SYSTEMADMIN
 export async function PATCH(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: { clinicId: string } }
 ) {
   try {
     // check if there is a session, and extract the email
     const session = await getServerSession(authOptions);
 
     const body = await req.json();
-    const { firstName, lastNames, roles, email, clinics } = body;
-    console.log(clinics);
+    const { name, email } = body;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!firstName || !lastNames || !roles || !email) {
+    if (!name || !email) {
       return new NextResponse("Missing info", { status: 400 });
     }
 
-    if (!params.userId) {
+    if (!params.clinicId) {
       return new NextResponse("User Id is required", { status: 400 });
     }
 
-    const user = await prisma.user.updateMany({
+    const clinic = await prisma.clinic.updateMany({
       // find
       where: {
-        id: params.userId,
+        id: params.clinicId,
       },
       // passing in the data
       data: {
-        firstName,
-        lastNames,
-        roles,
+        name,
         email,
       },
     });
-    console.log("updated user", user);
+    console.log("updated user", clinic);
 
-    return NextResponse.json(user);
+    return NextResponse.json(clinic);
   } catch (error) {
-    console.log("[ADMIN_USER_PATCH]", error);
+    console.log("[ADMIN_CLINIC_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

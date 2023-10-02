@@ -1,26 +1,22 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import CellAction from "./CellAction";
+import CellActionClinic from "./CellActionClinics";
 
 // Data table from shadcn
 // this is step 1 Column Definitions
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type UserColumn = {
-  firstName: string | null;
-  lastNames: string | null;
-  email: string | null;
-  clinics: string;
-  roles: string;
+export type ClinicColumn = {
   createdAt: string;
   updatedAt: string;
-  // id of the individual User
+  name: string;
+  email: string;
   id: string;
 };
 
 // header is what is shown
-export const Columns: ColumnDef<UserColumn>[] = [
+export const Columns: ColumnDef<ClinicColumn>[] = [
   {
     header: "View/Edit",
     id: "actions",
@@ -30,30 +26,15 @@ export const Columns: ColumnDef<UserColumn>[] = [
     // row's original data to the CellAction component for further
     // processing or rendering.
     // the original data object is the UserColumn type
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellActionClinic data={row.original} />,
   },
   {
-    // accessorKeys correspond to the key in the data object (formattedUsers)
-    // that contains the value for that column
-    // hence firstName and createdAt are types of the formattedUsers
-    accessorKey: "firstName",
-    header: "First Name",
-  },
-  {
-    accessorKey: "lastNames",
-    header: "Last Name(s)",
+    accessorKey: "name",
+    header: "Name",
   },
   {
     accessorKey: "email",
     header: "Email",
-  },
-  {
-    accessorKey: "clinics",
-    header: "Clinics",
-  },
-  {
-    accessorKey: "roles",
-    header: "Roles",
   },
   {
     accessorKey: "createdAt",

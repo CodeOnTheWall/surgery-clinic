@@ -282,7 +282,7 @@ export default function RegisterForm() {
             />
           </div>
           <Button disabled={isLoading} className=" ml-auto" type="submit">
-            Register Clinic
+            Register User
           </Button>
         </form>
       </Form>

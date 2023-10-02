@@ -2,23 +2,24 @@
 
 // Components
 import Heading from "@/components/ui/Heading";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/ui/DataTable";
 // Component Specific Components
-import { UserColumn, Columns } from "./Columns";
+import { ClinicColumn, Columns } from "./ColumnsClinics";
 
-interface UsersClientProps {
-  formattedUsers: UserColumn[];
+interface ClinicClientProps {
+  formattedClinics: ClinicColumn[];
 }
 
-export default function UsersClient({ formattedUsers }: UsersClientProps) {
+export default function AdminClinicsClient({
+  formattedClinics,
+}: ClinicClientProps) {
   return (
     <>
       <div className=" flex items-center justify-between">
         <Heading
-          title={`Users (${formattedUsers.length})`}
-          description="Manage Users and their Clinics"
+          title={`Clinics (${formattedClinics.length})`}
+          description="Manage Clinics"
         />
       </div>
       <Separator />
@@ -29,7 +30,7 @@ export default function UsersClient({ formattedUsers }: UsersClientProps) {
         // columns from Column Definition in Columns
         columns={Columns}
         // data is data to be seen inside the Columns
-        data={formattedUsers}
+        data={formattedClinics}
       />
       <Separator />
     </>

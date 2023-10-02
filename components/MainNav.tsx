@@ -1,57 +1,14 @@
-// "use client";
-
-// import Link from "next/link";
-// import { useParams, usePathname } from "next/navigation";
-
-// export default function MainNav({
-//   className,
-// }: React.HTMLAttributes<HTMLElement>) {
-//   const pathname = usePathname();
-//   const params = useParams();
-
-//   interface routeHelperProps {
-//     label: string;
-//   }
-//   const routeHelper = ({ label }: routeHelperProps) => ({
-//     href: `/${params.storeId}/${label.toLowerCase()}`,
-//     label: label,
-//     active: pathname === `/${params.storeId}/${label.toLowerCase()}`,
-//   });
-//   const labels = [
-//     "Dashboard",
-//     "Billboards",
-//     "Categories",
-//     "Sizes",
-//     "Colors",
-//     "Products",
-//     "Orders",
-//     "Settings",
-//   ];
-//   // array of objects
-//   const routes = labels.map((label) => routeHelper({ label }));
-
-//   return (
-//     <nav className={`flex items-center space-x-4 lg:space-x-6 ${className}`}>
-//       {routes.map((route) => (
-//         <Link
-//           key={route.href}
-//           href={route.href}
-//           className={`
-//         text-sm font-medium transition-colors hover:text-primary
-//         ${route.active ? "text-black dark:text-white" : "text-muted-foreground"}
-//       `}
-//         >
-//           {route.label}
-//         </Link>
-//       ))}
-//     </nav>
-//   );
-// }
-
 "use client";
 
+// Next
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+// Components
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export default function MainNav({
   className,
@@ -79,16 +36,6 @@ export default function MainNav({
       label: "Clinic Settings",
       active: pathname === `/${params.clinicId}/settings`,
     },
-    {
-      href: `/${params.clinicId}/admin/users`,
-      label: "Manage Users and Clinics",
-      active: pathname === `/${params.clinicId}/admin/users`,
-    },
-    // {
-    //   href: `/${params.storeId}/billboards`,
-    //   label: "Billboards",
-    //   active: pathname === `/${params.storeId}/billboards`,
-    // },
   ];
 
   return (
@@ -105,6 +52,23 @@ export default function MainNav({
           {route.label}
         </Link>
       ))}
+      <HoverCard>
+        <HoverCardTrigger>Admin</HoverCardTrigger>
+        <HoverCardContent className=" flex flex-col space-y-3 w-auto">
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            href={`/${params.clinicId}/admin/users`}
+          >
+            Manage Users
+          </Link>
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            href={`/${params.clinicId}/admin/clinics`}
+          >
+            Manage Clinics
+          </Link>
+        </HoverCardContent>
+      </HoverCard>
     </nav>
   );
 }
