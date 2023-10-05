@@ -9,7 +9,7 @@ import prisma from "@/lib/prisma";
 // ADMIN
 // IN THIS API ROUTE - INDIVIDUAL CLINIC - UPDATE/DELETE
 
-// API FOR UPDATING USER - PROTECTED
+// API FOR UPDATING CLINIC - PROTECTED
 // User will have to be logged in first to update user AND be SYSTEMADMIN
 export async function PATCH(
   req: Request,
@@ -18,20 +18,25 @@ export async function PATCH(
   try {
     // check if there is a session, and extract the email
     const session = await getServerSession(authOptions);
+    const roles = session?.user.roles;
 
     const body = await req.json();
-    const { name, email } = body;
+    const { name, clinicLocationTag } = body;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!name || !email) {
+    if (!roles!.includes("SYSTEMADMIN")) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!name || !clinicLocationTag) {
       return new NextResponse("Missing info", { status: 400 });
     }
 
     if (!params.clinicId) {
-      return new NextResponse("User Id is required", { status: 400 });
+      return new NextResponse("Clinic ID is required", { status: 400 });
     }
 
     const clinic = await prisma.clinic.updateMany({
@@ -42,10 +47,9 @@ export async function PATCH(
       // passing in the data
       data: {
         name,
-        email,
+        clinicLocationTag,
       },
     });
-    console.log("updated user", clinic);
 
     return NextResponse.json(clinic);
   } catch (error) {
@@ -54,36 +58,40 @@ export async function PATCH(
   }
 }
 
-// API FOR DELETING USER - PROTECTED
+// API FOR DELETING CLINIC - PROTECTED
 // User will have to be logged in first to delete user AND be SYSTEMADMIN
 export async function DELETE(
   // even though not using the req, params has to be second arg
   // so we keep the req there
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: { clinicId: string } }
 ) {
   try {
     // check if there is a session, and extract the email
     const session = await getServerSession(authOptions);
+    const roles = session?.user.roles;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
-    if (!params.userId) {
+    if (!roles!.includes("SYSTEMADMIN")) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!params.clinicId) {
       return new NextResponse("User Id is required", { status: 400 });
     }
 
-    const user = await prisma.user.deleteMany({
+    const clinic = await prisma.user.deleteMany({
       where: {
-        id: params.userId,
+        id: params.clinicId,
       },
     });
-    console.log(user, user.clinics);
 
-    return NextResponse.json(user);
+    return NextResponse.json(clinic);
   } catch (error) {
-    console.log("[ADMIN_USER_DELETE]", error);
+    console.log("[ADMIN_CLINIC_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

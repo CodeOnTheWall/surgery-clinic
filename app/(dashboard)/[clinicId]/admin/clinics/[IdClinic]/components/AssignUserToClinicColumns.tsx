@@ -1,26 +1,26 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import CellAction from "./CellAction";
+import AssignUserToClinicCellActions from "./AssignUserToClinicCellActions";
 
 // Data table from shadcn
 // this is step 1 Column Definitions
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type UserColumn = {
-  firstName: string | null;
-  lastNames: string | null;
-  email: string | null;
-  roles: string;
-  createdAt: string;
-  updatedAt: string;
-  // id of the individual User
+export type AssignUserToClinicColumn = {
   id: string;
+  firstName: string;
+  lastNames: string;
+  email: string;
+  roles: string[]; // Assuming roles is an array of strings
+  clinicIDs: string[]; // Assuming clinicIDs is an array of strings
+  clinics: any[]; // You can replace 'any' with the actual type for clinics
 };
 
 // header is what is shown
-export const Columns: ColumnDef<UserColumn>[] = [
+export const Columns: ColumnDef<AssignUserToClinicColumn>[] = [
   {
+    header: "Assign/Unassign Employee",
     id: "actions",
     // row represents a row of data in the data table, and row.original
     // provides access to the original data object associated with
@@ -28,12 +28,9 @@ export const Columns: ColumnDef<UserColumn>[] = [
     // row's original data to the CellAction component for further
     // processing or rendering.
     // the original data object is the UserColumn type
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <AssignUserToClinicCellActions data={row.original} />,
   },
   {
-    // accessorKeys correspond to the key in the data object (formattedUsers)
-    // that contains the value for that column
-    // hence firstName and createdAt are types of the formattedUsers
     accessorKey: "firstName",
     header: "First Name",
   },
@@ -42,19 +39,15 @@ export const Columns: ColumnDef<UserColumn>[] = [
     header: "Last Name(s)",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "assignedClinics",
+    header: "Assigned Clinics",
   },
   {
     accessorKey: "roles",
     header: "Roles",
   },
   {
-    accessorKey: "createdAt",
-    header: "Date Created",
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Date Updated",
+    accessorKey: "email",
+    header: "Email",
   },
 ];

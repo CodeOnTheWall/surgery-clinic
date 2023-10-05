@@ -17,7 +17,6 @@ import AlertModal from "@/components/modals/AlertModal";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -25,25 +24,33 @@ import {
 } from "@/components/ui/form";
 
 const clinicFormValuesSchema = z.object({
-  email: z.string().email(),
   name: z
     .string()
     .min(5, "Name must have at least 5 characters")
     .max(40, "Name must have at most 40 characters"),
+  clinicLocationTag: z
+    .string()
+    .min(1, "Clinic Location Tag must have at least 1 character")
+    .max(40, "Clinic Location Tag must have at most 40 characters"),
 });
 
 type ClinicFormValuesSchema = z.infer<typeof clinicFormValuesSchema>;
 
 interface ClinicsFormProps {
   clinic: {
-    email: string;
-    name: string;
     id: string;
+    name: string;
+    clinicLocationTag: string;
+    users: {
+      name: string;
+      roles: string[];
+      email: string;
+    }[];
   };
 }
 
 // using this form for both new and update
-export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
+export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
   // could use useParams to get from url, but already passing in the store
   // so can just do store.id - however to be more consistent across pages
   // we will use useParams
@@ -59,7 +66,7 @@ export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
 
     defaultValues: {
       name: clinic.name,
-      email: clinic.email,
+      clinicLocationTag: clinic.clinicLocationTag,
     },
   });
 
@@ -71,14 +78,14 @@ export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
         method: "PATCH",
         body: JSON.stringify({
           name: formInputData.name,
-          email: formInputData.email,
+          clinicLocationTag: formInputData.clinicLocationTag,
         }),
       });
 
       // to see the navbar reload with name
       router.refresh();
-      router.push(`/${params.clinicId}/admin/clinics`);
-      toast.success("User Updated");
+      router.push(`/${params.clinicId}/admin/clinics/${params.IdClinic}`);
+      toast.success("Clinic Updated", { duration: 3000 });
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -89,11 +96,11 @@ export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/admin/users/${params.userId}`, {
+      await fetch(`/api/admin/clinics/${params.IdClinic}`, {
         method: "DELETE",
       });
       router.refresh();
-      router.push(`/${params.clinicId}/admin/users`);
+      router.push(`/${params.clinicId}/admin/clinics`);
       toast.success("User Deleted");
     } catch (error) {
       toast.error("Make sure you removed all Clinics under this User first");
@@ -136,23 +143,6 @@ export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
           <div className=" grid grid-cols-3 gap-8">
             <FormField
               control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isLoading}
-                      placeholder="WalterWhite@gmail.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
@@ -163,6 +153,19 @@ export default function AdminClinicsForm({ clinic }: ClinicsFormProps) {
                       placeholder="Shoulder Surgery Institute"
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="clinicLocationTag"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clinic Location Tag</FormLabel>
+                  <FormControl>
+                    <Input disabled={isLoading} placeholder="IIBW" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

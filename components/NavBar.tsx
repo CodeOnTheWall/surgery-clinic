@@ -19,18 +19,17 @@ export default async function NavBar() {
     redirect("/api/auth/signin?callbackUrl=/");
   }
 
-  const clinics = await prisma.clinic.findMany({
-    where: {
-      email,
-    },
-  });
+  // const clinics = await prisma.clinic.findMany({
+  //   where: {
+  //     email,
+  //   },
+  // });
 
   return (
     <div className=" border-b">
       {/* reminder items center is cross axis */}
       <div className="flex h-16 items-center px-4">
         {/* <ClinicSwitcher clinics={clinics} /> */}
-        <ClinicSwitcher clinics={clinics} />
         <MainNav className="mx-6" />
         {/* ml auto moves all the way to right */}
         <div className=" ml-auto flex items-center space-x-4">

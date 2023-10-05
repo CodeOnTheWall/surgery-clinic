@@ -57,15 +57,33 @@ export default function MainNav({
         <HoverCardContent className=" flex flex-col space-y-3 w-auto">
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/users`}
+            href={`/${params.clinicId}/admin`}
           >
-            Manage Users
+            Admin Settings
+          </Link>
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            href={`/${params.clinicId}/admin/register-employee`}
+          >
+            Register Employee
+          </Link>
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            href={`/${params.clinicId}/admin/register-clinic`}
+          >
+            Register Clinic
           </Link>
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
             href={`/${params.clinicId}/admin/clinics`}
           >
-            Manage Clinics
+            View and Manage Clinics
+          </Link>
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            href={`/${params.clinicId}/admin/employees`}
+          >
+            View and Manage Employees
           </Link>
         </HoverCardContent>
       </HoverCard>

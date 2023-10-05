@@ -8,7 +8,7 @@ import prisma from "@/lib/prisma";
 // Next
 import { redirect } from "next/navigation";
 // Page Specific Components
-import RegisterForm from "./components/RegisterForm";
+import RegisterForm from "./components/RegisterUser";
 import AdminUsersClient from "./components/AdminUsersClient";
 
 // add redirect if user isnt admin admin, check to see if session
@@ -41,6 +41,9 @@ export default async function AdminUsersClientPage() {
     createdAt: format(user.createdAt, "MMMM do, yyyy"),
     updatedAt: format(user.updatedAt, "MMMM do, yyyy"),
   }));
+
+  const clinics = await prisma.clinic.findMany({});
+  console.log(clinics);
 
   return (
     <div className=" flex-col">

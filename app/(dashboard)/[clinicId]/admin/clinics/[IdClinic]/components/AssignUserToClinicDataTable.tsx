@@ -1,32 +1,27 @@
 "use client";
-// Next
-import { useParams, useRouter } from "next/navigation";
 
-import { Plus } from "lucide-react";
-//
+// Components
 import Heading from "@/components/ui/Heading";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/ui/DataTable";
-import { UserColumn, Columns } from "./Columns";
+// Component Specific Components
+import { AssignUserToClinicColumn, Columns } from "./AssignUserToClinicColumns";
 
 interface UsersClientProps {
-  formattedUsers: UserColumn[];
+  formattedUsers: AssignUserToClinicColumn[];
 }
 
-export default function UsersClient({ formattedUsers }: UsersClientProps) {
-  const router = useRouter();
-  const params = useParams();
-
+export default function AssignUserToClinicDataTable({
+  formattedUsers,
+}: UsersClientProps) {
   return (
     <>
       <div className=" flex items-center justify-between">
         <Heading
-          title={`Users (${formattedUsers.length})`}
-          description="Manage the Users and their Clinics"
+          title="Assign Employees to Clinic"
+          description="You can unassign or reassign at anytime"
         />
       </div>
-      <Separator />
       <DataTable
         searchKeyPlaceholder="search by email"
         // search by email

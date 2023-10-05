@@ -16,6 +16,8 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     const email = session?.user.email;
 
+    // if(role !== )
+
     const body = await req.json();
     const { name } = body;
 

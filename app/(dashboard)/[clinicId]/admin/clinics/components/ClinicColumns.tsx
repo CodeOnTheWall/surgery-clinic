@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import CellActionClinic from "./CellActionClinics";
+import CellActionClinic from "./ClinicCellActions";
 
 // Data table from shadcn
 // this is step 1 Column Definitions
@@ -11,7 +11,6 @@ export type ClinicColumn = {
   createdAt: string;
   updatedAt: string;
   name: string;
-  email: string;
   id: string;
 };
 
@@ -31,10 +30,6 @@ export const Columns: ColumnDef<ClinicColumn>[] = [
   {
     accessorKey: "name",
     header: "Name",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
   },
   {
     accessorKey: "createdAt",

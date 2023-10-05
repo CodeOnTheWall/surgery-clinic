@@ -22,7 +22,7 @@ export async function PATCH(
     const email = session?.user.email;
 
     const body = await req.json();
-    const { name } = body;
+    const { name, clinicLocationTag } = body;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
@@ -67,6 +67,7 @@ export async function PATCH(
       // passing in the data
       data: {
         name,
+        clinicLocationTag,
       },
     });
 

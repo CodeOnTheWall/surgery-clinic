@@ -7,8 +7,9 @@ import { getServerSession } from "next-auth/next";
 import { format } from "date-fns";
 // Next
 import { redirect } from "next/navigation";
-
+// Page Specific Components
 import UsersClient from "./components/UsersClient";
+import RegisterForm from "./components/RegisterForm";
 
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
@@ -40,6 +41,7 @@ export default async function UsersPage() {
   return (
     <div className="flex-col">
       <div className=" flex-1 space-y-4 p-8 pt-6">
+        <RegisterForm />
         <UsersClient formattedUsers={formattedUsers} />
       </div>
     </div>

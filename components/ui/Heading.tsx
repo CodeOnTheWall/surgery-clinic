@@ -1,6 +1,6 @@
 interface HeadingProps {
   title: string;
-  description: string;
+  description?: string;
 }
 
 export default function Heading({ title, description }: HeadingProps) {

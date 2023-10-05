@@ -1,11 +1,11 @@
 // Next Auth
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
-
+// Prisma Client
 import prisma from "@/lib/prisma";
-
+// Next
 import { redirect } from "next/navigation";
-
+// Components
 import NavBar from "@/components/NavBar";
 
 interface DashBoardLayoutProps {
@@ -29,16 +29,17 @@ export default async function DashBoardLayout({
   }
 
   // loading first store with the given id
-  const clinic = await prisma.clinic.findFirst({
-    where: {
-      email,
-    },
-  });
+  // const clinic = await prisma.clinic.findFirst({
+  //   where: {
+  //     id: params.clinicId,
+  //     email,
+  //   },
+  // });
 
-  // check if clinic exists, in the event that user types random number
-  if (!clinic) {
-    redirect("/");
-  }
+  // // check if clinic exists, in the event that user types random number
+  // if (!clinic) {
+  //   redirect("/");
+  // }
 
   return (
     <>

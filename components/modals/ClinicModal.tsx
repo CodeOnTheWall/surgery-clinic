@@ -28,7 +28,11 @@ const formSchema = z.object({
   name: z
     .string()
     .min(1, "Clinic name must be at least 1 character")
-    .max(20, "Clinic name cannot exceed 20 characters"),
+    .max(40, "Clinic name cannot exceed 40 characters"),
+  clinicLocationTag: z
+    .string()
+    .min(1, "Clinic Location Tag must have at least 1 character")
+    .max(10, "Clinic Location Tag must have at most 10 characters"),
 });
 
 // z.infer is used to extract the type info from a zod schema
@@ -52,6 +56,7 @@ export default function ClinicModal() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      clinicLocationTag: "",
     },
   });
 
@@ -68,8 +73,6 @@ export default function ClinicModal() {
       });
 
       const responseData = await response.json();
-      // console.log(responseData);
-      // toast.success(`E-commerce store ${responseData.name} created`);
       // router.push(`/${responseData.id}`);
       // other method that has less bugs since it causes a full page reload
       // with method below, the modal goes away
@@ -84,7 +87,7 @@ export default function ClinicModal() {
   return (
     <Modal
       title="Create Clinic"
-      description="Add a new Clinic and start managing inventory"
+      description="Add a new Clinic and start managing Users and Inventory"
       isOpen={isOpen}
       onClose={onClose}
     >
@@ -98,6 +101,25 @@ export default function ClinicModal() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Clinic Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      // disabled if loading
+                      disabled={isloading}
+                      placeholder="Hand Clinic"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="clinicLocationTag"
+              // ctrl click to see the field prop from react-hook-form
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clinic Location Tag</FormLabel>
                   <FormControl>
                     <Input
                       // disabled if loading

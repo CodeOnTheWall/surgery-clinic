@@ -1,5 +1,7 @@
 // Prisma Client
 import prisma from "@/lib/prisma";
+// Components
+import Heading from "@/components/ui/Heading";
 
 interface DashBoardPageProps {
   params: { clinicId: string };
@@ -13,5 +15,13 @@ export default async function DashBoardPage({ params }: DashBoardPageProps) {
     },
   });
 
-  return <div>{clinic?.name}</div>;
+  return (
+    <div className="flex flex-col gap-y-10 mt-5">
+      <Heading
+        title={`Clinic Name: ${clinic?.name}`}
+        description="Navigate the different tabs to view and manage your clinics, users, and inventory"
+      />
+      <div>{`Clinic Location Tag for orders: ${clinic?.clinicLocationTag}`}</div>
+    </div>
+  );
 }

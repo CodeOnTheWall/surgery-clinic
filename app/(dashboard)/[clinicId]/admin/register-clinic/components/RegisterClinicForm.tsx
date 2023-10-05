@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+// We (as the system admin) register a clinic, then we can assign employees to that
+// clinic, or the clinic owners can assign employees to that clinic
 
+// React
+import { useState } from "react";
+// Next
+import { useParams, useRouter } from "next/navigation";
+// 3rd Party Libraries
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Clinic } from "@prisma/client";
 import { toast } from "react-hot-toast";
-import { Trash } from "lucide-react";
 
+// Components
 import Heading from "@/components/ui/Heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,56 +26,64 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import AlertModal from "@/components/modals/AlertModal";
 
-const settingFormValuesSchema = z.object({
+const registerFormValuesSchema = z.object({
   name: z
     .string()
     .min(5, "Name must have at least 5 characters")
     .max(40, "Name must have at most 40 characters"),
   clinicLocationTag: z
     .string()
-    .min(1, "Clinic Location Tag must have at least 1 character")
+    .min(4, "Clinic Location Tag must have at least 4 characters")
     .max(40, "Clinic Location Tag must have at most 40 characters"),
 });
-type SettingsFormValuesSchema = z.infer<typeof settingFormValuesSchema>;
 
-interface SettingsFormProps {
-  clinic: Clinic;
-}
+type RegisterFormValuesSchema = z.infer<typeof registerFormValuesSchema>;
 
-export default function SettingsForm({ clinic }: SettingsFormProps) {
-  // could use useParams to get from url, or get the id from clinic.id
-  // but to stay consistent we will use useParams
+export default function RegisterClinicForm() {
+  // could use useParams to get from url, but already passing in the store
+  // so can just do store.id
+  // const params = useParams();
 
   const router = useRouter();
   const params = useParams();
 
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<SettingsFormValuesSchema>({
-    resolver: zodResolver(settingFormValuesSchema),
+  const form = useForm<RegisterFormValuesSchema>({
+    resolver: zodResolver(registerFormValuesSchema),
     // form will be pre populated with defaultValues
-    defaultValues: clinic,
+    defaultValues: {
+      name: "",
+      clinicLocationTag: "",
+    },
   });
 
-  const onSubmit = async (formInputData: SettingsFormValuesSchema) => {
+  const onSubmit = async (formInputData: RegisterFormValuesSchema) => {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/clinics/${params.clinicId}`, {
-        method: "PATCH",
+      const response = await fetch(`/api/admin/clinics`, {
+        method: "POST",
         body: JSON.stringify({
           name: formInputData.name,
           clinicLocationTag: formInputData.clinicLocationTag,
         }),
       });
 
+      const data = await response.json();
+
+      // Handle successful response
       // to see the navbar reload with name
-      router.refresh();
-      router.push(`/${params.clinicId}/`);
-      toast.success("Clinic updated");
+      if (response.status === 200) {
+        router.refresh();
+        router.push(`/${params.clinicId}/admin/clinics/${data.id}`);
+        toast.success("Clinic Registered Successfully");
+      } else {
+        // Handle error response
+        console.log(data);
+        toast.error(data.message);
+      }
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -79,45 +91,27 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
     }
   };
 
-  const onDelete = async () => {
-    try {
-      setIsLoading(true);
-      await fetch(`/api/clinics/${params.clinicId}`, {
-        method: "DELETE",
-      });
-      router.refresh();
-      router.push("/");
-      toast.success("Clinic deleted");
-    } catch (error) {
-      toast.error("Make sure you removed all inventory first");
-    } finally {
-      setIsLoading(false);
-      setIsOpen(false);
-    }
-  };
-
   return (
     <>
-      <AlertModal
-        title="DELETE CLINIC"
-        description="Make sure you have deleted or transferred your inventory before deleting"
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        onConfirm={onDelete}
-        isLoading={isLoading}
-      />
-      <div className="flex items-center justify-between">
-        <Heading title="Clinic Settings" description="Manage Clinic Settings" />
-        <Button
-          disabled={isLoading}
-          variant="destructive"
-          size="icon"
-          onClick={() => setIsOpen(true)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+      <div className="flex flex-col items-start gap-y-5">
+        <Heading title="Register a Clinic and Assign Its Employees" />
+        <p>
+          For an employee to work at your clinic, you need to assign them to the
+          clinic. This enables them to log in and access the clinic&apos;s data.
+          Employees can be assigned or unassigned as needed, either shared among
+          clinics or restricted to a specific clinic. Please register a clinic
+          first; afterward, you will be directed to the clinic page to assign
+          its employees.
+        </p>
       </div>
       <Separator />
+      <div className="flex flex-col items-start gap-y-5">
+        <Heading title="1. Register Clinic" />
+        <p>
+          After registering a clinic, you will be directed to the clinic page to
+          assign employees.
+        </p>
+      </div>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -133,7 +127,7 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
                   <FormControl>
                     <Input
                       disabled={isLoading}
-                      placeholder="Instituto Juan Carlos Mexico"
+                      placeholder="Instituto Sterling Bunnell Mexico"
                       {...field}
                     />
                   </FormControl>
@@ -148,15 +142,16 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
                 <FormItem>
                   <FormLabel>Clinic Location Tag</FormLabel>
                   <FormControl>
-                    <Input disabled={isLoading} placeholder="IIBW" {...field} />
+                    <Input disabled={isLoading} placeholder="ISBM" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
           <Button disabled={isLoading} className=" ml-auto" type="submit">
-            Save changes
+            Register Clinic
           </Button>
         </form>
       </Form>

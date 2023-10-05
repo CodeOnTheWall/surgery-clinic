@@ -64,25 +64,31 @@ model User {
   accounts          Account[]
   sessions          Session[]
   roles             Role[]  
-  clinics           Clinic[] @relation("UserToClinic")
+
+  // targetting the field 'clinicIDs' and referencing 'id' from Clinic schema
+  clinicIDs String[]  @db.ObjectId
+  clinics   Clinic[]  @relation(fields: [clinicIDs], references: [id])
 }
 
 enum Role {
   SYSTEMADMIN
   CLINICOWNER
   CLINICEMPLOYEE
+  INVENTORYPERMISSION
 }
 
 
 model Clinic {
   // below 3 created by prisma (id of store etc)
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   name              String
-  // Targetting the field email, and refering to email from User model
-  email             String
-  user              User @relation("UserToClinic", fields: [email], references: [email])
+  clinicLocationTag String
+
+  // targetting the field 'userIDs' and referencing 'id' from User schema
+  userIDs           String[]  @db.ObjectId
+  users             User[]    @relation(fields: [userIDs], references: [id])
 }
 
 // model Billboard {

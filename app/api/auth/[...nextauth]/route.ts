@@ -14,10 +14,10 @@ export const authOptions: AuthOptions = {
   // configuring Next Auth to use the Prisma adaper with the provided Prisma client
   adapter: PrismaAdapter(prisma),
   providers: [
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID as string,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    // }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -34,7 +34,7 @@ export const authOptions: AuthOptions = {
             email: credentials.email,
           },
         });
-        console.log(user, "user authorize");
+        console.log(user, "authorize callback - auth route");
 
         if (!user || !user?.hashedPassword) {
           throw new Error("Invalid credentials");
@@ -56,13 +56,19 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+
   callbacks: {
-    session: async ({ session, user }) => {
-      // console.log(session, "session");
-      // console.log(user, "user");
-      // if (session?.user) {
-      //   session.user.userId = user.id;
-      // }
+    session: async ({ session, token }) => {
+      // console.log("session", session);
+      // console.log("token", token);
+      session.user.userId = token.sub!;
+      const user = await prisma.user.findUnique({
+        where: {
+          id: session.user.userId,
+        },
+      });
+      session.user.roles = user!.roles;
+      // console.log("session callback", user);
       return session;
     },
   },

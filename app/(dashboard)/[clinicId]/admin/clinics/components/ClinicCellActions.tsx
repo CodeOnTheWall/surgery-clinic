@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import AlertModal from "@/components/modals/AlertModal";
-import { ClinicColumn } from "./ColumnsClinics";
+import { ClinicColumn } from "./ClinicColumns";
 
 interface CellActionProps {
   data: ClinicColumn;

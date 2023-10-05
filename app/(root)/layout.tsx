@@ -22,16 +22,16 @@ export default async function RootLayout({ children }: SetupLayoutProps) {
 
   // if session
   // loading first clinic available with logged in user
-  const clinic = await prisma.clinic.findFirst({
-    where: {
-      email: email,
-    },
-  });
+  // const clinic = await prisma.clinic.findFirst({
+  //   where: {
+  //     email: email,
+  //   },
+  // });
 
-  // if that store exists, redirect to that store
-  if (clinic) {
-    redirect(`/${clinic.id}`);
-  }
+  // // if that store exists, redirect to that store
+  // if (clinic) {
+  //   redirect(`/${clinic.id}`);
+  // }
 
   // Modal will open since children of this is the page.tsx, which makes the modal open
   // but if theres a clinic, we go to that clinics id, and no model is opened

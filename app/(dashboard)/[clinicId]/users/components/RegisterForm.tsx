@@ -1,8 +1,5 @@
 "use client";
 
-// We (as the system admin) register a user, then the user can log in with the
-// information and create their own clinic
-
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
@@ -28,10 +25,6 @@ import {
 } from "@/components/ui/form";
 
 const roles = [
-  {
-    id: "SYSTEMADMIN",
-    label: "SYSTEMADMIN",
-  },
   {
     id: "CLINICOWNER",
     label: "CLINICOWNER",
@@ -99,7 +92,7 @@ export default function RegisterForm() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`/api/admin/register`, {
+      const response = await fetch(`/api/register`, {
         method: "POST",
         body: JSON.stringify({
           email: formInputData.email,
@@ -280,6 +273,10 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
+            <FormDescription>
+              Make sure to give user their temporary password so they can log in
+              and change it
+            </FormDescription>
           </div>
           <Button disabled={isLoading} className=" ml-auto" type="submit">
             Register User
