@@ -39,13 +39,14 @@ export const Columns: ColumnDef<AssignUserToClinicColumn>[] = [
     header: "Last Name(s)",
   },
   {
-    accessorKey: "assignedClinics",
-    header: "Assigned Clinics",
-  },
-  {
     accessorKey: "roles",
     header: "Roles",
   },
+  {
+    accessorKey: "clinics",
+    header: "Assigned Clinics",
+  },
+
   {
     accessorKey: "email",
     header: "Email",

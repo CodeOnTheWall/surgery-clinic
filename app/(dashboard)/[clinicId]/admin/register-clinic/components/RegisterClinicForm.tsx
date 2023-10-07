@@ -7,12 +7,12 @@
 import { useState } from "react";
 // Next
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 // 3rd Party Libraries
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-
 // Components
 import Heading from "@/components/ui/Heading";
 import { Button } from "@/components/ui/button";
@@ -94,7 +94,14 @@ export default function RegisterClinicForm() {
   return (
     <>
       <div className="flex flex-col items-start gap-y-5">
-        <Heading title="Register a Clinic and Assign Its Employees" />
+        <div className=" flex items-center justify-between w-full">
+          <Heading title="Register a Clinic and Assign Its Employees" />
+          <Button>
+            <Link href={`/${params.clinicId}/admin/clinics`}>
+              View all Clinics
+            </Link>
+          </Button>
+        </div>
         <p>
           For an employee to work at your clinic, you need to assign them to the
           clinic. This enables them to log in and access the clinic&apos;s data.

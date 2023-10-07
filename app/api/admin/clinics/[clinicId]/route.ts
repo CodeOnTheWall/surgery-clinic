@@ -16,44 +16,103 @@ export async function PATCH(
   { params }: { params: { clinicId: string } }
 ) {
   try {
-    // check if there is a session, and extract the email
     const session = await getServerSession(authOptions);
     const roles = session?.user.roles;
-
-    const body = await req.json();
-    const { name, clinicLocationTag } = body;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
 
     if (!roles!.includes("SYSTEMADMIN")) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse("Unauthorized", { status: 403 });
     }
 
-    if (!name || !clinicLocationTag) {
-      return new NextResponse("Missing info", { status: 400 });
-    }
+    const body = await req.json();
+    const { name, clinicLocationTag, userId } = body;
 
     if (!params.clinicId) {
       return new NextResponse("Clinic ID is required", { status: 400 });
     }
 
-    const clinic = await prisma.clinic.updateMany({
-      // find
+    const user = await prisma.user.findUnique({
       where: {
-        id: params.clinicId,
-      },
-      // passing in the data
-      data: {
-        name,
-        clinicLocationTag,
+        id: userId,
       },
     });
 
-    return NextResponse.json(clinic);
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 });
+    }
+
+    const clinic = await prisma.clinic.findUnique({
+      where: {
+        id: params.clinicId,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!clinic) {
+      return new NextResponse("Clinic not found", { status: 404 });
+    }
+
+    // iterate through the clinics.users array, will return true if atleast 1
+    // user has an id of the passed in userId, which would mean that this user
+    // is already assigned to this clinic
+    const isUserAssigned = clinic.users.some((user) => user.id === userId);
+
+    if (isUserAssigned) {
+      // User is already assigned, unassign them
+      const clinicWithUnassignedUser = await prisma.clinic.update({
+        where: {
+          id: params.clinicId,
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+      return NextResponse.json(
+        {
+          message: "Employee Unassigned from Clinic Successfully",
+          clinicWithUnassignedUser,
+        },
+        {
+          status: 200,
+        }
+      );
+    } else {
+      // User is not assigned, assign them
+      const clinicWithAssignedUser = await prisma.clinic.update({
+        where: {
+          id: params.clinicId,
+        },
+        data: {
+          name,
+          clinicLocationTag,
+          users: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      });
+      return NextResponse.json(
+        {
+          message: "Employee Assigned to Clinic Successfully",
+          clinicWithAssignedUser,
+        },
+        {
+          status: 200,
+        }
+      );
+    }
   } catch (error) {
-    console.log("[ADMIN_CLINIC_PATCH]", error);
+    console.error("[ADMIN_CLINIC_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -83,13 +142,30 @@ export async function DELETE(
       return new NextResponse("User Id is required", { status: 400 });
     }
 
-    const clinic = await prisma.user.deleteMany({
+    // Delete the clinic
+    const deletedClinic = await prisma.clinic.deleteMany({
       where: {
         id: params.clinicId,
       },
     });
 
-    return NextResponse.json(clinic);
+    // Unattach users from the clinic
+    await prisma.user.updateMany({
+      where: {
+        // For each user, if their array of clinicIDs contains the specified clinicId,
+        // then update that array to be an empty array.
+        clinicIDs: {
+          has: params.clinicId,
+        },
+      },
+      data: {
+        clinicIDs: {
+          set: [],
+        },
+      },
+    });
+
+    return NextResponse.json(deletedClinic);
   } catch (error) {
     console.log("[ADMIN_CLINIC_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });

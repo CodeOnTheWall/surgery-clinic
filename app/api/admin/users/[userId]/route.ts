@@ -9,6 +9,44 @@ import prisma from "@/lib/prisma";
 // ADMIN
 // IN THIS API ROUTE - INDIVIDUAL USER - UPDATE/DELETE
 
+// API FOR GETTING USER - PROTECTED
+// User will have to be logged in first to update user AND be SYSTEMADMIN
+export async function GET(
+  request: Request,
+  { params }: { params: { userId: string } }
+) {
+  try {
+    // check if there is a session, and extract the email
+    const session = await getServerSession(authOptions);
+    const roles = session?.user.roles;
+
+    if (!session) {
+      return new NextResponse("Unauthenticated", { status: 401 });
+    }
+
+    if (!roles!.includes("SYSTEMADMIN")) {
+      return new NextResponse("Unauthorized", { status: 403 });
+    }
+
+    if (!params.userId) {
+      return new NextResponse("User Id is required", { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      // find
+      where: {
+        id: params.userId,
+      },
+    });
+    // console.log("get user", user);
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.log("[ADMIN_INDIVIDUAL_USER_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
 // API FOR UPDATING USER - PROTECTED
 // User will have to be logged in first to update user AND be SYSTEMADMIN
 export async function PATCH(
@@ -52,7 +90,7 @@ export async function PATCH(
 
     return NextResponse.json(user);
   } catch (error) {
-    console.log("[ADMIN_USER_PATCH]", error);
+    console.log("[ADMIN_INDIVIDUAL_USER_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -82,11 +120,10 @@ export async function DELETE(
         id: params.userId,
       },
     });
-    console.log(user, user.clinics);
 
     return NextResponse.json(user);
   } catch (error) {
-    console.log("[ADMIN_USER_DELETE]", error);
+    console.log("[ADMIN_INDIVIDUAL_USER_DELETE]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

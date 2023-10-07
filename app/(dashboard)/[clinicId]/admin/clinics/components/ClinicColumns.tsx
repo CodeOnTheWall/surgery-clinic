@@ -12,6 +12,12 @@ export type ClinicColumn = {
   updatedAt: string;
   name: string;
   id: string;
+  userIDs: string[];
+  users: {
+    firstName: string;
+    lastNames: string;
+    roles: string[];
+  }[];
 };
 
 // header is what is shown
@@ -30,6 +36,10 @@ export const Columns: ColumnDef<ClinicColumn>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "users",
+    header: "Assigned Employees",
   },
   {
     accessorKey: "createdAt",

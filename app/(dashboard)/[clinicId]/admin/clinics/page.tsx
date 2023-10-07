@@ -19,15 +19,38 @@ export default async function AdminClinicsClientPage() {
     redirect("/api/auth/signin?callbackUrl=/");
   }
 
-  const clinics = await prisma.clinic.findMany({});
+  const clinics = await prisma.clinic.findMany({
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      userIDs: true,
+      users: {
+        select: {
+          firstName: true,
+          lastNames: true,
+          roles: true,
+        },
+      },
+    },
+  });
 
   const formattedClinics = clinics.map((clinic) => ({
-    id: clinic.id,
-    name: clinic.name,
+    id: clinic.id!,
+    name: clinic.name!,
     // formating to string
-    createdAt: format(clinic.createdAt, "MMMM do, yyyy"),
-    updatedAt: format(clinic.updatedAt, "MMMM do, yyyy"),
+    createdAt: format(clinic.createdAt!, "MMMM do, yyyy"),
+    updatedAt: format(clinic.updatedAt!, "MMMM do, yyyy"),
+    userIDs: clinic.userIDs!,
+    users: clinic
+      .users!.map(
+        (user) =>
+          `${user.firstName} ${user.lastNames} - ${user.roles.join(", ")}.`
+      )
+      .join(" "),
   }));
+  console.log(formattedClinics);
 
   return (
     <div className=" flex-col">

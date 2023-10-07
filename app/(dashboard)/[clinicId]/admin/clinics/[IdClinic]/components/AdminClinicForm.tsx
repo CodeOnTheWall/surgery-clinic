@@ -22,6 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Link from "next/link";
 
 const clinicFormValuesSchema = z.object({
   name: z
@@ -96,14 +97,17 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/admin/clinics/${params.IdClinic}`, {
+      const response = await fetch(`/api/admin/clinics/${params.IdClinic}`, {
         method: "DELETE",
       });
+
       router.refresh();
       router.push(`/${params.clinicId}/admin/clinics`);
-      toast.success("User Deleted");
+      toast.success("Clinic Deleted", { duration: 3000 });
     } catch (error) {
-      toast.error("Make sure you removed all Clinics under this User first");
+      toast.error(
+        "Make sure you have managed all inventory under this Clinic first"
+      );
     } finally {
       setIsLoading(false);
       setIsOpen(false);
@@ -114,7 +118,7 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
     <>
       <AlertModal
         title="DELETE CLINIC"
-        description="Make sure all Inventory under this Clinic are managed first"
+        description="Make sure you have managed all inventory under this Clinic first"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onDelete}
@@ -123,6 +127,11 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
       <div className="flex items-center justify-between">
         <Heading title="Manage Clinic" description="Update Clinic Properties" />
         <div className=" flex justify-center items-center space-x-5">
+          <Button disabled={isLoading}>
+            <Link href={`/${params.clinicId}/admin/clinics`}>
+              Back to all Clinics
+            </Link>
+          </Button>
           <Button
             disabled={isLoading}
             variant="destructive"

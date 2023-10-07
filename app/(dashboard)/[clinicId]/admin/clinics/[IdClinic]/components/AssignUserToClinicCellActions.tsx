@@ -10,8 +10,6 @@ import { toast } from "react-hot-toast";
 import { AssignUserToClinicColumn } from "./AssignUserToClinicColumns";
 // Components
 import { Button } from "@/components/ui/button";
-// Prisma Client
-import prisma from "@/lib/prisma";
 
 interface CellActionProps {
   data: AssignUserToClinicColumn;
@@ -20,7 +18,6 @@ interface CellActionProps {
 export default function AssignUserToClinicCellActions({
   data,
 }: CellActionProps) {
-  // console.log(data);
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
@@ -29,49 +26,36 @@ export default function AssignUserToClinicCellActions({
   const clinicId = params.IdClinic.toString();
 
   const isAssignedToClinic = data.clinicIDs.includes(clinicId);
-  console.log(isAssignedToClinic);
 
-  const onSubmit = async (formInputData: RegisterFormValuesSchema) => {
+  // id - from data.id has the id of that column
+  const handleAssign = async (id: string) => {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`/api/admin/${params.cl}`, {
-        method: "POST",
-        body: JSON.stringify({}),
+      // status will be on response, but message will be on response.json()
+      const response = await fetch(`/api/admin/clinics/${params.IdClinic}`, {
+        method: "PATCH",
+        body: JSON.stringify({ userId: id }),
       });
-      const data = await response.json();
-      console.log(data);
+
+      const responseData = await response.json();
+
       if (response.status === 200) {
         // Handle successful response
         // to see the navbar reload with name
         router.refresh();
-        router.push(`/${params.clinicId}/admin/users`);
-        toast.success("User Registered Successfully");
+        // router.push(`/${params.clinicId}/admin/clinics/${params.IdClinic}`);
+
+        // response message set on backend depending on assigning or unassigned
+        // employee
+        toast.success(`${responseData.message}`, {
+          duration: 3000,
+        });
       } else {
         // Handle error response
-        console.log(data);
-        toast.error(data.message);
+        console.log(responseData.message);
+        toast.error(responseData.message);
       }
-    } catch (error) {
-      toast.error("Something went wrong.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAssign = async (id: any) => {
-    setIsLoading(true);
-    console.log(id);
-  };
-
-  const handleUnassign = async () => {
-    try {
-      setIsLoading(true);
-
-      // Add logic to unassign user from the clinic
-      // ...
-
-      toast.success("User Unassigned from Clinic");
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -82,7 +66,7 @@ export default function AssignUserToClinicCellActions({
   return (
     <>
       {isAssignedToClinic ? (
-        <Button onClick={handleUnassign} disabled={isLoading}>
+        <Button onClick={() => handleAssign(data.id)} disabled={isLoading}>
           Unassign Employee
         </Button>
       ) : (

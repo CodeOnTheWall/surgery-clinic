@@ -35,31 +35,31 @@ export default function CellActionClinic({ data }: CellActionProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/admin/clinics/${data.id}`, {
+      const response = await fetch(`/api/admin/clinics/${data.id}`, {
         method: "DELETE",
       });
       // router.refresh();
-      // router.push(`/${params.clinicId}/admin/users`);
+      // router.push(`/${params.clinicId}/admin/clinics`);
       // below method that has less bugs since it causes a full page reload
       // with method below, the modal goes away
       window.location.assign(`/${params.clinicId}/admin/clinics/`);
 
-      toast.success("User deleted");
+      toast.success("Clinic Deleted");
     } catch (error) {
       toast.error(
-        "Make sure you have managed all Inventory with this Clinic first"
+        "Make sure you have managed all inventory under this Clinic first"
       );
     } finally {
-      setIsLoading(false);
       setIsOpen(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <AlertModal
-        title="DELETE USER"
-        description="THIS ACTION CANT BE UNDONE"
+        title="DELETE CLINIC"
+        description="Make sure you have managed all inventory under this Clinic first"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onDelete}

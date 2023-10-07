@@ -1,11 +1,15 @@
 "use client";
 
+// Next
+import Link from "next/link";
+import { useParams } from "next/navigation";
 // Components
 import Heading from "@/components/ui/Heading";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/ui/DataTable";
 // Component Specific Components
 import { ClinicColumn, Columns } from "./ClinicColumns";
+import { Button } from "@/components/ui/button";
 
 interface ClinicClientProps {
   formattedClinics: ClinicColumn[];
@@ -14,10 +18,20 @@ interface ClinicClientProps {
 export default function ClinicsClientDataTable({
   formattedClinics,
 }: ClinicClientProps) {
+  const params = useParams();
+
   return (
     <>
       <div className=" flex items-center justify-between">
-        <Heading title="2. Go to Clinic and Assign Employees" />
+        <Heading
+          title="Go to Clinic and Manage Employees"
+          description="View a clinic to assign/unassign employees or manage the inventory for that clinic."
+        />
+        <Button>
+          <Link href={`/${params.clinicId}/admin/register-clinic`}>
+            Register a Clinic
+          </Link>
+        </Button>
       </div>
       <Separator />
       <DataTable

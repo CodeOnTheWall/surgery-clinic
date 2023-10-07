@@ -39,19 +39,29 @@ export default async function AdminClinicPage({
   };
 
   const users = await prisma.user.findMany({
-    include: {
-      clinics: true, // Assuming you have a relation named 'clinics' in your User model
+    select: {
+      id: true,
+      firstName: true,
+      lastNames: true,
+      roles: true,
+      email: true,
+      clinicIDs: true,
+      clinics: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
   const formattedUsers = users.map((user) => ({
     id: user.id,
-    firstName: user.firstName,
-    lastNames: user.lastNames,
-    roles: user.roles,
-    email: user.email,
+    firstName: user.firstName!,
+    lastNames: user.lastNames!,
+    roles: user.roles!,
+    email: user.email!,
     clinicIDs: user.clinicIDs,
-    clinics: user.clinics,
+    clinics: user.clinics.map((clinic) => clinic.name),
   }));
 
   return (
