@@ -44,6 +44,7 @@ export default function AssignUserToClinicCellActions({
         // Handle successful response
         // to see the navbar reload with name
         router.refresh();
+        // dont need both refresh and push
         // router.push(`/${params.clinicId}/admin/clinics/${params.IdClinic}`);
 
         // response message set on backend depending on assigning or unassigned

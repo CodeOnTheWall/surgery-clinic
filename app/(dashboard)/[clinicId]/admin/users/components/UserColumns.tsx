@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import CellAction from "./CellAction";
+import UserCellActions from "./UserCellActions";
 
 // Data table from shadcn
 // this is step 1 Column Definitions
@@ -30,7 +30,7 @@ export const Columns: ColumnDef<UserColumn>[] = [
     // row's original data to the CellAction component for further
     // processing or rendering.
     // the original data object is the UserColumn type
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <UserCellActions data={row.original} />,
   },
   {
     // accessorKeys correspond to the key in the data object (formattedUsers)
@@ -49,7 +49,7 @@ export const Columns: ColumnDef<UserColumn>[] = [
   },
   {
     accessorKey: "clinics",
-    header: "Clinics",
+    header: "Assigned Clinics",
   },
   {
     accessorKey: "roles",

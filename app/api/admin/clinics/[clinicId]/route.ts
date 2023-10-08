@@ -34,16 +34,6 @@ export async function PATCH(
       return new NextResponse("Clinic ID is required", { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!user) {
-      return new NextResponse("User not found", { status: 404 });
-    }
-
     const clinic = await prisma.clinic.findUnique({
       where: {
         id: params.clinicId,
@@ -57,54 +47,83 @@ export async function PATCH(
       return new NextResponse("Clinic not found", { status: 404 });
     }
 
-    // iterate through the clinics.users array, will return true if atleast 1
-    // user has an id of the passed in userId, which would mean that this user
-    // is already assigned to this clinic
-    const isUserAssigned = clinic.users.some((user) => user.id === userId);
-
-    if (isUserAssigned) {
-      // User is already assigned, unassign them
-      const clinicWithUnassignedUser = await prisma.clinic.update({
+    if (userId) {
+      const user = await prisma.user.findUnique({
         where: {
-          id: params.clinicId,
-        },
-        data: {
-          users: {
-            disconnect: {
-              id: userId,
-            },
-          },
+          id: userId,
         },
       });
-      return NextResponse.json(
-        {
-          message: "Employee Unassigned from Clinic Successfully",
-          clinicWithUnassignedUser,
-        },
-        {
-          status: 200,
-        }
-      );
+
+      if (!user) {
+        return new NextResponse("User not found", { status: 404 });
+      }
+
+      // iterate through the clinics.users array, will return true if atleast 1
+      // user has an id of the passed in userId, which would mean that this user
+      // is already assigned to this clinic
+      const isUserAssigned = clinic.users.some((user) => user.id === userId);
+
+      if (isUserAssigned) {
+        // User is already assigned, unassign them
+        const clinicWithUnassignedUser = await prisma.clinic.update({
+          where: {
+            id: params.clinicId,
+          },
+          data: {
+            users: {
+              disconnect: {
+                id: userId,
+              },
+            },
+          },
+        });
+        return NextResponse.json(
+          {
+            message: `${user.firstName} Unassigned Successfully from Clinic: ${clinicWithUnassignedUser.name}`,
+            clinicWithUnassignedUser,
+          },
+          {
+            status: 200,
+          }
+        );
+      } else {
+        // User is not assigned, assign them
+        const clinicWithAssignedUser = await prisma.clinic.update({
+          where: {
+            id: params.clinicId,
+          },
+          data: {
+            users: {
+              connect: {
+                id: userId,
+              },
+            },
+          },
+        });
+        return NextResponse.json(
+          {
+            message: `${user.firstName} Assigned Successfully to Clinic: ${clinicWithAssignedUser.name}`,
+            clinicWithAssignedUser,
+          },
+          {
+            status: 200,
+          }
+        );
+      }
     } else {
-      // User is not assigned, assign them
-      const clinicWithAssignedUser = await prisma.clinic.update({
+      const updatedClinic = await prisma.clinic.update({
         where: {
           id: params.clinicId,
         },
         data: {
           name,
           clinicLocationTag,
-          users: {
-            connect: {
-              id: userId,
-            },
-          },
         },
       });
       return NextResponse.json(
         {
-          message: "Employee Assigned to Clinic Successfully",
-          clinicWithAssignedUser,
+          message: `Clinic: ${clinic.name} Updated Successfully`,
+          updatedClinic,
         },
         {
           status: 200,
@@ -112,7 +131,7 @@ export async function PATCH(
       );
     }
   } catch (error) {
-    console.error("[ADMIN_CLINIC_PATCH]", error);
+    console.error("[ADMIN_INDIVIDUAL_CLINIC_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -122,7 +141,7 @@ export async function PATCH(
 export async function DELETE(
   // even though not using the req, params has to be second arg
   // so we keep the req there
-  req: Request,
+  request: Request,
   { params }: { params: { clinicId: string } }
 ) {
   try {

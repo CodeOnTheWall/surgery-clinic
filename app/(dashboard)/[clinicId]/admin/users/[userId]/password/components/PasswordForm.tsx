@@ -76,17 +76,22 @@ export default function PasswordForm({ user }: PasswordFormProps) {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/admin/users/${params.userId}/password`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          password: formInputData.password,
-        }),
-      });
+      const response = await fetch(
+        `/api/admin/users/${params.userId}/password`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            password: formInputData.password,
+          }),
+        }
+      );
+
+      const responseData = await response.json();
 
       // to see the navbar reload with name
       router.refresh();
       router.push(`/${params.clinicId}/admin/users/${params.userId}`);
-      toast.success("User Password");
+      toast.success(`${responseData.message}`);
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {

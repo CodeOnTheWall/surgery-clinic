@@ -24,7 +24,7 @@ export default function ClinicsClientDataTable({
     <>
       <div className=" flex items-center justify-between">
         <Heading
-          title="Go to Clinic and Manage Employees"
+          title="2. Go to Clinic and Manage Employees"
           description="View a clinic to assign/unassign employees or manage the inventory for that clinic."
         />
         <Button>

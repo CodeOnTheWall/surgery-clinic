@@ -31,20 +31,16 @@ const registerFormValuesSchema = z.object({
   name: z
     .string()
     .min(5, "Name must have at least 5 characters")
-    .max(40, "Name must have at most 40 characters"),
+    .max(50, "Name must have at most 50 characters"),
   clinicLocationTag: z
     .string()
     .min(4, "Clinic Location Tag must have at least 4 characters")
-    .max(40, "Clinic Location Tag must have at most 40 characters"),
+    .max(50, "Clinic Location Tag must have at most 50 characters"),
 });
 
 type RegisterFormValuesSchema = z.infer<typeof registerFormValuesSchema>;
 
 export default function RegisterClinicForm() {
-  // could use useParams to get from url, but already passing in the store
-  // so can just do store.id
-  // const params = useParams();
-
   const router = useRouter();
   const params = useParams();
 
@@ -63,6 +59,8 @@ export default function RegisterClinicForm() {
     try {
       setIsLoading(true);
 
+      // reminder that response has status codes, but to get message
+      // we must convert to json first to access that message
       const response = await fetch(`/api/admin/clinics`, {
         method: "POST",
         body: JSON.stringify({
@@ -71,18 +69,33 @@ export default function RegisterClinicForm() {
         }),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
+      // because my response on backend looks like this, i cant access the id
+      // from just responseData.id, i have to do responseData.clinic.id
+      // since my responseData has message and clinic
+      // return NextResponse.json(
+      //   {
+      //     message: `Clinic: ${clinic.name} Registered Successfully`,
+      //     clinic,
+      //   },
+      //   {
+      //     status: 200,
+      //   }
+      // );
 
       // Handle successful response
       // to see the navbar reload with name
       if (response.status === 200) {
         router.refresh();
-        router.push(`/${params.clinicId}/admin/clinics/${data.id}`);
-        toast.success("Clinic Registered Successfully");
+        router.push(
+          `/${params.clinicId}/admin/clinics/${responseData.clinic.id}`
+        );
+        toast.success(`${responseData.message}`, {
+          duration: 4000,
+        });
       } else {
         // Handle error response
-        console.log(data);
-        toast.error(data.message);
+        toast.error(responseData.message);
       }
     } catch (error) {
       toast.error("Something went wrong.");

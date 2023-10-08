@@ -7,6 +7,7 @@
 import { useState } from "react";
 // Next
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 // 3rd Party Libraries
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,6 +42,18 @@ const roles = [
     id: "CLINICEMPLOYEE",
     label: "CLINICEMPLOYEE",
   },
+  {
+    id: "INVENTORYPERMISSION",
+    label: "INVENTORYPERMISSION",
+  },
+  {
+    id: "SOFTWAREARCHITECT",
+    label: "SOFTWAREARCHITECT",
+  },
+  {
+    id: "SURGEON",
+    label: "SURGEON",
+  },
 ];
 
 const registerFormValuesSchema = z
@@ -73,7 +86,7 @@ const registerFormValuesSchema = z
   });
 type RegisterFormValuesSchema = z.infer<typeof registerFormValuesSchema>;
 
-export default function RegisterForm() {
+export default function RegisterUserForm() {
   // could use useParams to get from url, but already passing in the store
   // so can just do store.id
   // const params = useParams();
@@ -100,7 +113,7 @@ export default function RegisterForm() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`/api/admin/register`, {
+      const response = await fetch(`/api/admin/users`, {
         method: "POST",
         body: JSON.stringify({
           email: formInputData.email,
@@ -110,18 +123,22 @@ export default function RegisterForm() {
           roles: formInputData.roles,
         }),
       });
-      const data = await response.json();
-      console.log(data);
+      const responseData = await response.json();
+
       if (response.status === 200) {
         // Handle successful response
         // to see the navbar reload with name
         router.refresh();
-        router.push(`/${params.clinicId}/admin/users`);
-        toast.success("User Registered Successfully");
+        router.push(
+          `/${params.clinicId}/admin/users/${responseData.sanitizedUser.id}`
+        );
+        toast.success(`${responseData.message}`, {
+          duration: 4000,
+        });
       } else {
         // Handle error response
-        console.log(data);
-        toast.error(data.message);
+        console.log(responseData);
+        toast.error(responseData.message);
       }
     } catch (error) {
       toast.error("Something went wrong.");
@@ -133,7 +150,14 @@ export default function RegisterForm() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title="Register" description="Register a Clinic User" />
+        <div className=" flex items-center justify-between w-full">
+          <Heading title="Register a User/Employee" />
+          <Button>
+            <Link href={`/${params.clinicId}/admin/users`}>
+              View all Users/Employees
+            </Link>
+          </Button>
+        </div>
       </div>
       <Separator />
       <Form {...form}>

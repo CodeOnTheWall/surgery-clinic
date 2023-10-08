@@ -25,7 +25,12 @@ export default async function AdminDashBoardLayout({
   }
 
   if (!roles!.includes("SYSTEMADMIN")) {
-    <div>Unauthorized</div>;
+    return (
+      <div>
+        Unauthorized - Speak to Clinic Owner or System Admin to change
+        privileges.
+      </div>
+    );
   }
 
   return <>{children}</>;

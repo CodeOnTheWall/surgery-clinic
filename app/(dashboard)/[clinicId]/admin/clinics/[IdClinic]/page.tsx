@@ -1,7 +1,5 @@
 // Prisma Client
 import prisma from "@/lib/prisma";
-// package to format dates
-import { format } from "date-fns";
 // Page Specific Components
 import AdminClinicForm from "./components/AdminClinicForm";
 import AssignUserToClinicDataTable from "./components/AssignUserToClinicDataTable";
@@ -61,7 +59,7 @@ export default async function AdminClinicPage({
     roles: user.roles!,
     email: user.email!,
     clinicIDs: user.clinicIDs,
-    clinics: user.clinics.map((clinic) => clinic.name),
+    clinics: user.clinics.map((clinic) => clinic.name).join(", "),
   }));
 
   return (

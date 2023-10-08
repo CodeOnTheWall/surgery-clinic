@@ -20,13 +20,29 @@ export async function PATCH(
   try {
     // check if there is a session, and extract the email
     const session = await getServerSession(authOptions);
-
-    const body = await req.json();
-    const { password } = body;
+    const rolez = session?.user.roles;
 
     if (!session) {
       return new NextResponse("Unauthenticated", { status: 401 });
     }
+
+    if (!rolez!.includes("SYSTEMADMIN")) {
+      return new NextResponse("Unauthorized", { status: 403 });
+    }
+
+    const foundUser = await prisma.user.findUnique({
+      // find
+      where: {
+        id: params.userId,
+      },
+    });
+
+    if (!foundUser) {
+      return new NextResponse("No User Found", { status: 404 });
+    }
+
+    const body = await req.json();
+    const { password } = body;
 
     if (!password) {
       return new NextResponse("Missing Password field", { status: 400 });
@@ -36,20 +52,13 @@ export async function PATCH(
       return new NextResponse("User Id is required", { status: 400 });
     }
 
-    const userHasClinic = await prisma.user.findFirst({
-      where: {
-        id: params.userId,
-      },
-      include: { clinics: true },
-    });
-
     let hashedPassword;
     if (password) {
       // 12 salt rounds
       hashedPassword = await bcrypt.hash(password, 12);
     }
 
-    const user = await prisma.user.updateMany({
+    await prisma.user.updateMany({
       // find
       where: {
         id: params.userId,
@@ -60,7 +69,20 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(user);
+    // without password
+    const sanitizedUser = {
+      firstName: foundUser.firstName,
+    };
+
+    return NextResponse.json(
+      {
+        message: `Password of Employee/User: ${sanitizedUser.firstName} Updated Successfully`,
+        sanitizedUser,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error) {
     console.log("[ADMIN_USER_PASSWORD_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });

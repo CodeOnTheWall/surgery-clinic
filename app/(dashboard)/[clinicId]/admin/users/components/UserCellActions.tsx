@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserColumn } from "./Columns";
+import { UserColumn } from "./UserColumns";
 import { Button } from "@/components/ui/button";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import AlertModal from "@/components/modals/AlertModal";
@@ -20,7 +20,7 @@ interface CellActionProps {
   data: UserColumn;
 }
 
-export default function CellAction({ data }: CellActionProps) {
+export default function UserCellActions({ data }: CellActionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 

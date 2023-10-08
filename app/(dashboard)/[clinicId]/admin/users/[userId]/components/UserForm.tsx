@@ -39,6 +39,18 @@ const roles = [
     id: "CLINICEMPLOYEE",
     label: "CLINICEMPLOYEE",
   },
+  {
+    id: "INVENTORYPERMISSION",
+    label: "INVENTORYPERMISSION",
+  },
+  {
+    id: "SOFTWAREARCHITECT",
+    label: "SOFTWAREARCHITECT",
+  },
+  {
+    id: "SURGEON",
+    label: "SURGEON",
+  },
 ];
 
 const userFormValuesSchema = z.object({
@@ -54,9 +66,6 @@ const userFormValuesSchema = z.object({
   roles: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "Please mark a role",
   }),
-  clinics: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "Please mark a role",
-  }),
 });
 
 type UserFormValuesSchema = z.infer<typeof userFormValuesSchema>;
@@ -68,15 +77,10 @@ interface UserFormProps {
     lastNames: string;
     roles: string[];
   };
-  clinics: {
-    email: string;
-    name: string;
-    id: string;
-  }[];
 }
 
 // using this form for both new and update
-export default function AdminUserForm({ user, clinics }: UserFormProps) {
+export default function AdminUserForm({ user }: UserFormProps) {
   // could use useParams to get from url, but already passing in the store
   // so can just do store.id - however to be more consistent across pages
   // we will use useParams
@@ -86,12 +90,6 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [checkedClinics, setCheckedClinics] = useState(
-    clinics.filter((clinic) => clinic.email === user.email)
-  );
-  console.log(checkedClinics);
-  const checkedClinicz = checkedClinics.map((clinic) => clinic.id);
-  console.log(checkedClinicz, "zzz");
 
   const form = useForm<UserFormValuesSchema>({
     resolver: zodResolver(userFormValuesSchema),
@@ -101,7 +99,6 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
       firstName: user.firstName,
       lastNames: user.lastNames,
       roles: user.roles,
-      clinics: checkedClinics.map((clinic) => clinic.id), // Use the clinic IDs
     },
   });
 
@@ -109,21 +106,22 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/admin/users/${params.userId}`, {
+      const response = await fetch(`/api/admin/users/${params.userId}`, {
         method: "PATCH",
         body: JSON.stringify({
           email: formInputData.email,
           firstName: formInputData.firstName,
           lastNames: formInputData.lastNames,
           roles: formInputData.roles,
-          clinics: formInputData.clinics,
         }),
       });
+
+      const responseData = await response.json();
 
       // to see the navbar reload with name
       router.refresh();
       router.push(`/${params.clinicId}/admin/users`);
-      toast.success("User Updated");
+      toast.success(`${responseData.message}`, { duration: 4000 });
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -152,7 +150,7 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
     <>
       <AlertModal
         title="DELETE USER"
-        description="Make sure all Clinics under this User are managed first"
+        description="User will be auto Unassigned from all associated Clinics"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onDelete}
@@ -161,6 +159,11 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
       <div className="flex items-center justify-between">
         <Heading title="Manage User" description="Update User Properties" />
         <div className=" flex justify-center items-center space-x-5">
+          <Button disabled={isLoading}>
+            <Link href={`/${params.clinicId}/admin/users/`}>
+              View All Employees/Users
+            </Link>
+          </Button>
           <Button disabled={isLoading}>
             <Link
               href={`/${params.clinicId}/admin/users/${params.userId}/password`}
@@ -282,57 +285,6 @@ export default function AdminUserForm({ user, clinics }: UserFormProps) {
                             </FormControl>
                             <FormLabel className="font-normal">
                               {option.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="clinics"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Clinics</FormLabel>
-                    <FormDescription>
-                      Assign or Unassign a Clinic to a User
-                    </FormDescription>
-                  </div>
-                  {clinics.map((option) => (
-                    <FormField
-                      key={option.id}
-                      control={form.control}
-                      name="clinics"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={option.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(option.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([
-                                        ...field.value,
-                                        option.id,
-                                      ])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== option.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {option.name}
                             </FormLabel>
                           </FormItem>
                         );

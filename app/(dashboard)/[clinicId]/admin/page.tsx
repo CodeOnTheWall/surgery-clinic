@@ -7,10 +7,21 @@ import { redirect } from "next/navigation";
 // add redirect if user isnt admin admin, check to see if session
 // has information from credentials
 export default async function AdminClinicsClientPage() {
-  const session = getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
+  const roles = session?.user.roles;
+
   // callbackUrl will be the url that is loaded after signin
   if (!session) {
     redirect("/api/auth/signin?callbackUrl=/");
+  }
+
+  if (!roles!.includes("SYSTEMADMIN")) {
+    return (
+      <div>
+        Unauthorized - Speak to Clinic Owner or System Admin to change
+        privileges.
+      </div>
+    );
   }
 
   return (

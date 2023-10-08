@@ -38,7 +38,15 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(clinic);
+    return NextResponse.json(
+      {
+        message: `Clinic: ${clinic.name} Registered Successfully`,
+        clinic,
+      },
+      {
+        status: 200,
+      }
+    );
   } catch (error: any) {
     console.log("[ADMIN_CLINIC_POST]", error);
   }

@@ -14,7 +14,7 @@ export type AssignUserToClinicColumn = {
   email: string;
   roles: string[]; // Assuming roles is an array of strings
   clinicIDs: string[]; // Assuming clinicIDs is an array of strings
-  clinics: any[]; // You can replace 'any' with the actual type for clinics
+  clinics: string; // You can replace 'any' with the actual type for clinics
 };
 
 // header is what is shown

@@ -81,7 +81,7 @@ export default function MainNav({
           </Link>
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/employees`}
+            href={`/${params.clinicId}/admin/users`}
           >
             View and Manage Employees
           </Link>

@@ -19,15 +19,10 @@ export default async function PasswordPage({ params }: PasswordPageProps) {
     },
   });
 
-  interface formattedUsers {
-    firstName: string;
-    lastNames: string;
-  }
-
   // Since User model has some values that are String? since we may use both credentials
   // and google provider, we are telling ts here that in this case, the below,
   // are not going to be null
-  const formattedUser: formattedUsers = {
+  const formattedUser = {
     firstName: user!.firstName!,
     lastNames: user!.lastNames!,
   };

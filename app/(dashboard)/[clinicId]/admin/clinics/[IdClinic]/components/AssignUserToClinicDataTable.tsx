@@ -23,9 +23,9 @@ export default function AssignUserToClinicDataTable({
         />
       </div>
       <DataTable
-        searchKeyPlaceholder="search by email"
+        searchKeyPlaceholder="search by name"
         // search by email
-        searchKey="email"
+        searchKey="firstName"
         // columns from Column Definition in Columns
         columns={Columns}
         // data is data to be seen inside the Columns

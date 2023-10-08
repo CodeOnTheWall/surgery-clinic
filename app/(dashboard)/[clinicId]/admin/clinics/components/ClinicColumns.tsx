@@ -12,12 +12,9 @@ export type ClinicColumn = {
   updatedAt: string;
   name: string;
   id: string;
+  clinicLocationTag: string;
   userIDs: string[];
-  users: {
-    firstName: string;
-    lastNames: string;
-    roles: string[];
-  }[];
+  users: string;
 };
 
 // header is what is shown
@@ -36,6 +33,10 @@ export const Columns: ColumnDef<ClinicColumn>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "clinicLocationTag",
+    header: "Clinic Location Tag",
   },
   {
     accessorKey: "users",

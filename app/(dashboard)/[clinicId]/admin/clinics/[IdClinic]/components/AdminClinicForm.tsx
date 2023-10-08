@@ -28,11 +28,11 @@ const clinicFormValuesSchema = z.object({
   name: z
     .string()
     .min(5, "Name must have at least 5 characters")
-    .max(40, "Name must have at most 40 characters"),
+    .max(50, "Name must have at most 50 characters"),
   clinicLocationTag: z
     .string()
     .min(1, "Clinic Location Tag must have at least 1 character")
-    .max(40, "Clinic Location Tag must have at most 40 characters"),
+    .max(50, "Clinic Location Tag must have at most 50 characters"),
 });
 
 type ClinicFormValuesSchema = z.infer<typeof clinicFormValuesSchema>;
@@ -75,7 +75,7 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/admin/clinics/${params.IdClinic}`, {
+      const response = await fetch(`/api/admin/clinics/${params.IdClinic}`, {
         method: "PATCH",
         body: JSON.stringify({
           name: formInputData.name,
@@ -83,10 +83,12 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
         }),
       });
 
+      const responseData = await response.json();
+
       // to see the navbar reload with name
       router.refresh();
       router.push(`/${params.clinicId}/admin/clinics/${params.IdClinic}`);
-      toast.success("Clinic Updated", { duration: 3000 });
+      toast.success(`${responseData.message}`, { duration: 5000 });
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -97,13 +99,12 @@ export default function AdminClinicForm({ clinic }: ClinicsFormProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/admin/clinics/${params.IdClinic}`, {
+      await fetch(`/api/admin/clinics/${params.IdClinic}`, {
         method: "DELETE",
       });
 
-      router.refresh();
       router.push(`/${params.clinicId}/admin/clinics`);
-      toast.success("Clinic Deleted", { duration: 3000 });
+      toast.success("Clinic Deleted", { duration: 5000 });
     } catch (error) {
       toast.error(
         "Make sure you have managed all inventory under this Clinic first"
