@@ -18,9 +18,7 @@ interface SettingsPageProps {
 export default async function Settings({ params }: SettingsPageProps) {
   // check if there is a session
   const session = await getServerSession(authOptions);
-  const email = session?.user.email;
   const roles = session?.user.roles;
-  console.log(session, roles);
 
   // callbackUrl will be the url that is loaded after signin
   if (!session) {
@@ -30,7 +28,6 @@ export default async function Settings({ params }: SettingsPageProps) {
   const clinic = await prisma.clinic.findFirst({
     where: {
       id: params.clinicId,
-      email,
     },
   });
 
@@ -38,23 +35,17 @@ export default async function Settings({ params }: SettingsPageProps) {
     redirect("/");
   }
 
-  if (!roles!.includes("SYSTEMADMIN") && !roles!.includes("CLINICOWNER")) {
-    return (
-      <div className=" flex-col">
-        <div className=" flex-1 space-y-4 p-8 pt-6">
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        {!roles?.includes("SYSTEMADMIN") && !roles?.includes("CLINICOWNER") ? (
           <Heading
             title={`Clinic Name: ${clinic.name}`}
             description="To alter clinic settings, please log in as Clinic Owner or System Admin"
           />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className=" flex-col">
-      <div className=" flex-1 space-y-4 p-8 pt-6">
-        <SettingsForm clinic={clinic} />
+        ) : (
+          <SettingsForm clinic={clinic} />
+        )}
       </div>
     </div>
   );

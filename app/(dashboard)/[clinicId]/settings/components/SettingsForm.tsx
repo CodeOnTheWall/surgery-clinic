@@ -60,7 +60,7 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
     try {
       setIsLoading(true);
 
-      await fetch(`/api/clinics/${params.clinicId}`, {
+      const response = await fetch(`/api/clinics/${params.clinicId}`, {
         method: "PATCH",
         body: JSON.stringify({
           name: formInputData.name,
@@ -68,10 +68,12 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
         }),
       });
 
+      const responseData = await response.json();
+
       // to see the navbar reload with name
       router.refresh();
-      router.push(`/${params.clinicId}/`);
-      toast.success("Clinic updated");
+      router.push(`/${params.clinicId}`);
+      toast.success(`${responseData.message}`);
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -79,43 +81,10 @@ export default function SettingsForm({ clinic }: SettingsFormProps) {
     }
   };
 
-  const onDelete = async () => {
-    try {
-      setIsLoading(true);
-      await fetch(`/api/clinics/${params.clinicId}`, {
-        method: "DELETE",
-      });
-      router.refresh();
-      router.push("/");
-      toast.success("Clinic deleted");
-    } catch (error) {
-      toast.error("Make sure you removed all inventory first");
-    } finally {
-      setIsLoading(false);
-      setIsOpen(false);
-    }
-  };
-
   return (
     <>
-      <AlertModal
-        title="DELETE CLINIC"
-        description="Make sure you have deleted or transferred your inventory before deleting"
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        onConfirm={onDelete}
-        isLoading={isLoading}
-      />
       <div className="flex items-center justify-between">
         <Heading title="Clinic Settings" description="Manage Clinic Settings" />
-        <Button
-          disabled={isLoading}
-          variant="destructive"
-          size="icon"
-          onClick={() => setIsOpen(true)}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
       </div>
       <Separator />
       <Form {...form}>

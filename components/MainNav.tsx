@@ -3,6 +3,8 @@
 // Next
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
+// Next Auth
+import { useSession } from "next-auth/react";
 // Components
 import {
   HoverCard,
@@ -14,6 +16,10 @@ export default function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
+  const { data: session } = useSession();
+
+  const isSystemAdmin = session?.user.roles.includes("SYSTEMADMIN");
+
   const pathname = usePathname();
   const params = useParams();
 
@@ -22,11 +28,6 @@ export default function MainNav({
       href: `/${params.clinicId}`,
       label: "Dashboard",
       active: pathname === `/${params.clinicId}`,
-    },
-    {
-      href: `/${params.clinicId}/users`,
-      label: "View Clinic Users",
-      active: pathname === `/${params.clinicId}/users`,
     },
     {
       // this navbar is used inside the layout of [clinicId], and although its in
@@ -53,40 +54,65 @@ export default function MainNav({
         </Link>
       ))}
       <HoverCard>
-        <HoverCardTrigger>Admin</HoverCardTrigger>
+        <HoverCardTrigger>Inventory</HoverCardTrigger>
         <HoverCardContent className=" flex flex-col space-y-3 w-auto">
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin`}
+            href={`/${params.clinicId}/inventory/`}
           >
-            Admin Settings
+            Inventory Overview
           </Link>
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/register-employee`}
+            href={`/${params.clinicId}/inventory/manage-inventory`}
           >
-            Register Employee
+            Manage Inventory
           </Link>
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/register-clinic`}
+            href={`/${params.clinicId}/products/register-product`}
           >
-            Register Clinic
+            Register Product
           </Link>
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/clinics`}
+            href={`/${params.clinicId}/products/`}
           >
-            View and Manage Clinics
-          </Link>
-          <Link
-            className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/admin/users`}
-          >
-            View and Manage Employees
+            Manage Products
           </Link>
         </HoverCardContent>
       </HoverCard>
+      {isSystemAdmin && (
+        <HoverCard>
+          <HoverCardTrigger>Admin</HoverCardTrigger>
+          <HoverCardContent className=" flex flex-col space-y-3 w-auto">
+            <Link
+              className="text-sm font-medium transition-colors hover:text-primary"
+              href={`/${params.clinicId}/admin/register-employee`}
+            >
+              Register Employee
+            </Link>
+            <Link
+              className="text-sm font-medium transition-colors hover:text-primary"
+              href={`/${params.clinicId}/admin/users`}
+            >
+              View and Manage Employees
+            </Link>
+            <Link
+              className="text-sm font-medium transition-colors hover:text-primary"
+              href={`/${params.clinicId}/admin/register-clinic`}
+            >
+              Register Clinic
+            </Link>
+            <Link
+              className="text-sm font-medium transition-colors hover:text-primary"
+              href={`/${params.clinicId}/admin/clinics`}
+            >
+              View and Manage Clinics
+            </Link>
+          </HoverCardContent>
+        </HoverCard>
+      )}
     </nav>
   );
 }

@@ -21,25 +21,23 @@ export default async function DashBoardLayout({
 }: DashBoardLayoutProps) {
   // check if there is a session
   const session = await getServerSession(authOptions);
-  const email = session?.user.email;
 
   // callbackUrl will be the url that is loaded after signin
   if (!session) {
     redirect("/api/auth/signin?callbackUrl=/");
   }
 
-  // loading first store with the given id
-  // const clinic = await prisma.clinic.findFirst({
-  //   where: {
-  //     id: params.clinicId,
-  //     email,
-  //   },
-  // });
+  // loading first assigned clinic with us
+  const clinic = await prisma.clinic.findFirst({
+    where: {
+      id: params.clinicId,
+    },
+  });
 
-  // // check if clinic exists, in the event that user types random number
-  // if (!clinic) {
-  //   redirect("/");
-  // }
+  // check if clinic exists, in the event that user types random number
+  if (!clinic) {
+    redirect("/");
+  }
 
   return (
     <>

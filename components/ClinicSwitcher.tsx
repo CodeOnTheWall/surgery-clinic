@@ -1,9 +1,11 @@
 "use client";
 
-// React Hooks
+// React
 import { useState } from "react";
 // Next
 import { useParams, useRouter } from "next/navigation";
+// Next Auth
+import { useSession } from "next-auth/react";
 // Prisma Client Clinic Model
 import { Clinic } from "@prisma/client";
 // Components
@@ -25,6 +27,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "./ui/command";
+import Link from "next/link";
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -39,6 +42,10 @@ export default function ClinicSwitcher({
   // default value of empty array
   clinics = [],
 }: ClinicSwitcherProps) {
+  const { data: session } = useSession();
+
+  const isSystemAdmin = session?.user.roles.includes("SYSTEMADMIN");
+
   // if this gets called, the clinicModal gets opened
   const onOpen = useClinicModal((state) => state.onOpen);
 
@@ -52,7 +59,6 @@ export default function ClinicSwitcher({
     id: clinic.id,
     createdAt: clinic.createdAt,
     updatedAt: clinic.updatedAt,
-    email: clinic.email,
   }));
 
   // find the clinic that has the same id as params.clinicId
@@ -127,19 +133,20 @@ export default function ClinicSwitcher({
             </CommandGroup>
           </CommandList>
           <CommandSeparator />
-          <CommandList>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => {
-                  setOpen(false);
-                  onOpen();
-                }}
-              >
-                <PlusCircle className=" mr-2 h-5 w-5" />
-                Create Clinic
-              </CommandItem>
-            </CommandGroup>
-          </CommandList>
+          {isSystemAdmin && (
+            <CommandList>
+              <CommandGroup>
+                <CommandItem>
+                  <div className=" flex w-full justify-between">
+                    <Link href={`/${params.clinicId}/admin/register-clinic`}>
+                      Create Clinic
+                    </Link>
+                    <PlusCircle className=" h-5 w-5" />
+                  </div>
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

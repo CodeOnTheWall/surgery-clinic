@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth/next";
 // Next Response type
 import { NextResponse } from "next/server";
 
-// IN THIS API ROUTE - ADMIN CLINIC REGISTER - POST
+// IN THIS API ROUTE - ADMIN - REGISTER CLINIC - POST - PROTECTED
 
 // API FOR REGISTERING CLINIC - PROTECTED
 // Only Role of SYSTEMADMIN will be able to access this route and register

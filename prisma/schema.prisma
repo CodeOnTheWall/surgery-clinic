@@ -91,148 +91,68 @@ model Clinic {
   // targetting the field 'userIDs' and referencing 'id' from User schema
   userIDs           String[]  @db.ObjectId
   users             User[]    @relation(fields: [userIDs], references: [id])
+
+  inventory         Inventory?
 }
 
-// model Billboard {
-//   id        String @id @default(uuid())
-//   storeId   String
-//   // Targetting the field storeId, and refering to id from Store model
-//   store      Store @relation("StoreToBillboard", fields: [storeId], references: [id])
-//   label     String
-//   imageUrl  String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt 
-//   // Billboard can have multiple categories
-//   categories Category[]
+model Inventory {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // targetting the field 'userIDs' and referencing 'id' from User schema
+  clinicId          String    @db.ObjectId @unique
+  clinic            Clinic    @relation(fields: [clinicId], references: [id])
   
-// // fixes error with relation
-//   @@index([storeId])
-// }
+  productIDs        String[]  @db.ObjectId
+  products          Product[] @relation(fields: [productIDs], references: [id])
+
+  productInventories ProductInventory[]
+
+  // products          Product[]
+}
 
 
-// model Category {
-//   id        String @id @default(uuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   name      String
-//   storeId   String
-//   // targetting the field storeId, and refering to id from Store model
-//   store     Store @relation("StoreToCategory", fields: [storeId], references: [id])
-//   billboardId String
-//   // field billboardId is the referenced id from model Billboard
-//   // each category can only have 1 billboard
-//   billboard Billboard @relation(fields: [billboardId], references: [id])
-//   products  Product[] @relation("CategoryToProduct")
+model Product {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  upc               String
+  name              String
+  description       String
+  detail            String?
+  manufacturer      String
+  vendor            String?
+  type              String?
+  // quantity of individual items
+  quantity          Int?
+  // quantity of items in a box, null if the product isnt a box
+  boxQuantity       Int?
 
-// // fixes error with relation
-//   @@index([storeId])
-//   @@index([billboardId])
-// }
+   // self-relation for box and items
+  boxId             String?   @db.ObjectId
+  box               Product?  @relation("ProductBox", fields: [boxId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items             Product[] @relation("ProductBox")
 
-// model Size {
-//   id String @id @default(uuid())
-//   storeId String
-//   // Size can only exist inside a specific store
-//   // targetting the field storeId, and refering to id from Store model
-//   store Store @relation("StoreToSize", fields: [storeId], references: [id])
-//   products Product[]
-//   name String
-//   value String
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  inventoryIDs      String[]  @db.ObjectId
+  inventories       Inventory[] @relation(fields: [inventoryIDs], references: [id])
 
-// // fixes error with relation
-//   @@index([storeId])
-// }
+  productInventories ProductInventory[]
 
-// model Color {
-//   id String @id @default(uuid())
-//   storeId String
-//   // Color can only exist inside a specific store
-//   // targetting the field storeId, and refering to id from Store model
-//   store Store @relation("StoreToColor", fields: [storeId], references: [id])
-//   name String
-//   value String
-//   products Product[]
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  // 1 to many relationship with Inventory model
+  // inventoryId       String    @db.ObjectId
+  // inventory         Inventory @relation(fields: [inventoryId], references: [id])
+}
 
-// // fixes error with relation
-//   @@index([storeId])
-// }
+model ProductInventory {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  inventoryId       String    @db.ObjectId
+  inventory         Inventory @relation(fields: [inventoryId], references: [id])
+  productId         String    @db.ObjectId
+  product           Product   @relation(fields: [productId], references: [id])
+  quantity          Int
+}
 
-// model Product {
-//   id String @id @default(uuid())
-//   // Color can only exist inside a specific store
-//   // targetting the field storeId, and refering to id from Store model
-//   storeId String
-//   store Store @relation("StoreToProduct", fields: [storeId], references: [id])
-//   categoryId String
-//   category Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
-//   name String
-//   price Decimal
-//   isFeatured Boolean @default(false)
-//   isArchived Boolean @default(false)
-//   sizeId String
-//   size Size @relation(fields: [sizeId], references: [id])
-//   colorId String
-//   color Color @relation(fields: [colorId], references: [id])
-//   images Image[]
-//   orderItems OrderItem[]
-
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-// // fixes error with relation
-//   @@index([storeId])
-//   @@index([categoryId])
-//   @@index([sizeId])
-//   @@index([colorId])
-// }
-
-// // to be used with Product only, hence we want to use onDelete
-// // here so when product is deleted, its images are also deleted
-// // with it and wont get error message
-// model Image {
-//   id String @id @default(uuid())
-//   productId String
-//   // cascade allows us to delete product
-//   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-//   url String
-//  createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@index([productId])
-// }
-
-// model Order {
-//   id String @id @default(uuid())
-//   storeId String
-//   // Model can only exist inside a specific store
-//   // targetting the field storeId, and refering to id from Store model
-//   store Store @relation("StoreToOrder", fields: [storeId], references: [id])
-//   orderItems OrderItem[]
-//   isPaid Boolean @default(false)
-//   phone String @default("")
-//   address String @default("")
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@index([storeId])
-// }
-
-// model OrderItem {
-//   id String @id @default(uuid())
-//   orderId String
-//   order Order @relation(fields: [orderId], references: [id])
-//   productId String
-//   product Product @relation(fields: [productId], references: [id])
-
-
-//   @@index([productId])
-//   @@index([orderId])
-// }
 
 // at end run npx prisma generate before using query
 // then npx prisma db push

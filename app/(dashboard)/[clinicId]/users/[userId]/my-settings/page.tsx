@@ -12,7 +12,7 @@ interface UserPageProps {
 // params always available on server side, and we have userId since
 // we are inside [userId]
 
-export default async function AdminUserPage({ params }: UserPageProps) {
+export default async function UserPage({ params }: UserPageProps) {
   const user = await prisma.user.findUnique({
     where: {
       id: params.userId,
@@ -26,9 +26,7 @@ export default async function AdminUserPage({ params }: UserPageProps) {
     firstName: user!.firstName!,
     lastNames: user!.lastNames!,
     email: user!.email!,
-    roles: user!.roles,
   };
-  // console.log("formattedUser", formattedUser);
 
   return (
     <div className=" flex-col">
