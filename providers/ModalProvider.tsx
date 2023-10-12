@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import ClinicModal from "@/components/modals/ClinicModal";
+import ProductModal from "@/components/modals/ProductModal";
 
 export default function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,5 +16,5 @@ export default function ModalProvider() {
     setIsMounted(true);
   }, []);
 
-  return isMounted ? <ClinicModal /> : null;
+  return isMounted ? <ProductModal /> : null;
 }

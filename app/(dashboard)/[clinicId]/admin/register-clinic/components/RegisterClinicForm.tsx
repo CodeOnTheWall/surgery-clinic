@@ -70,19 +70,6 @@ export default function RegisterClinicForm() {
       });
 
       const responseData = await response.json();
-      // because my response on backend looks like this, i cant access the id
-      // from just responseData.id, i have to do responseData.clinic.id
-      // since my responseData has message and clinic
-      // return NextResponse.json(
-      //   {
-      //     message: `Clinic: ${clinic.name} Registered Successfully`,
-      //     clinic,
-      //   },
-      //   {
-      //     status: 200,
-      //   }
-      // );
-
       // Handle successful response
       // to see the navbar reload with name
       if (response.status === 200) {

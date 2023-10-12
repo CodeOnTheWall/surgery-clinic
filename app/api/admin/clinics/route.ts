@@ -7,9 +7,7 @@ import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 
 // IN THIS API ROUTE - ADMIN - REGISTER CLINIC - POST - PROTECTED
-
-// API FOR REGISTERING CLINIC - PROTECTED
-// Only Role of SYSTEMADMIN will be able to access this route and register
+// Only role of SYSTEMADMIN will be able to access this api route and register
 // a new Clinic.
 export async function POST(request: Request) {
   try {

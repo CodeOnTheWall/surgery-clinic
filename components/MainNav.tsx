@@ -56,15 +56,15 @@ export default function MainNav({
       <HoverCard>
         <HoverCardTrigger>Inventory</HoverCardTrigger>
         <HoverCardContent className=" flex flex-col space-y-3 w-auto">
-          <Link
+          {/* <Link
             className="text-sm font-medium transition-colors hover:text-primary"
             href={`/${params.clinicId}/inventory/`}
           >
             Inventory Overview
-          </Link>
+          </Link> */}
           <Link
             className="text-sm font-medium transition-colors hover:text-primary"
-            href={`/${params.clinicId}/inventory/manage-inventory`}
+            href={`/${params.clinicId}/inventory`}
           >
             Manage Inventory
           </Link>

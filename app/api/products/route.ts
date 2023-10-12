@@ -32,7 +32,20 @@ export async function POST(
       return new NextResponse("Missing info", { status: 400 });
     }
 
-    const product = await prisma.product.create({
+    const productExists = await prisma.product.findUnique({
+      where: {
+        name: name,
+      },
+    });
+
+    if (productExists) {
+      return NextResponse.json(
+        { message: "Product name already exists" },
+        { status: 409 }
+      );
+    }
+
+    const newProduct = await prisma.product.create({
       data: {
         upc,
         name,
@@ -42,12 +55,36 @@ export async function POST(
         vendor,
       },
     });
-    console.log("created product", product);
+
+    // Fetch all clinicIDs
+    const clinics = await prisma.clinic.findMany({
+      select: {
+        id: true,
+      },
+    });
+
+    // before i can make updates to productInventory, it has to be made first, so for a
+    // better user xp, instead of telling them they have to register the product
+    // to the clinic first, then add inventory, we will register the product to the
+    // clinic now, so that on the front end, we are just adding/deleting inventory
+    // Create an array of create operations for each clinic
+    const createOperations = clinics.map((clinic) =>
+      prisma.productInventory.create({
+        data: {
+          clinicId: clinic.id,
+          productId: newProduct.id,
+          quantity: 0, // The initial quantity for each clinic
+        },
+      })
+    );
+
+    // Execute the create operations in a single transaction
+    await prisma.$transaction(createOperations);
 
     return NextResponse.json(
       {
-        message: `Product: ${product.name} Successfully Registered`,
-        product,
+        message: `Product: ${newProduct.name} Successfully Registered`,
+        newProduct,
       },
       {
         status: 200,

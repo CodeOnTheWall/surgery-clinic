@@ -37,20 +37,12 @@ const registerProductFormValuesSchema = z.object({
     .string()
     .min(5, "Description must have at least 5 characters")
     .max(70, "Description name must have at most 70 characters"),
-  detail: z
-    .string()
-    .min(4, "Detail must have at least 5 characters")
-    .max(70, "Detail name must have at most 70 characters")
-    .optional(),
+  detail: z.string().optional(),
   manufacturer: z
     .string()
     .min(5, "Manufacturer must have at least 5 characters")
     .max(50, "Manufacturer name must have at most 50 characters"),
-  vendor: z
-    .string()
-    .min(4, "Vendor must have at least 5 characters")
-    .max(50, "Vendor must have at most 50 characters")
-    .optional(),
+  vendor: z.string().optional(),
 });
 
 type RegisterProductFormValuesSchema = z.infer<
@@ -87,10 +79,10 @@ export default function RegisterProductForm() {
         body: JSON.stringify({
           upc: formInputData.upc,
           name: formInputData.name,
-          description: formInputData.name,
-          detail: formInputData.name,
-          manufacturer: formInputData.name,
-          vendor: formInputData.name,
+          description: formInputData.description,
+          detail: formInputData.detail,
+          manufacturer: formInputData.manufacturer,
+          vendor: formInputData.vendor,
         }),
       });
       console.log(response);
@@ -103,7 +95,7 @@ export default function RegisterProductForm() {
       // to see the navbar reload with name
       if (response.status === 200) {
         router.refresh();
-        router.push(`/${params.clinicId}/products/${responseData.product.id}`);
+        router.push(`/${params.clinicId}/products/`);
         toast.success(`${responseData.message}`, {
           duration: 4000,
         });
@@ -128,12 +120,12 @@ export default function RegisterProductForm() {
           </Button>
         </div>
         <p>
-          After adding a product to the database, you will be redirected to its
-          product page where you can modify or update its properties. A product
-          only needs to be added once and can be used across multiple clinic
+          After adding a product to the database, you will be redirected to the
+          inventory page where you can view all products. There, you can update
+          a product&apos;s properties and manage its inventory. A product only
+          needs to be added once and can be used across multiple clinic
           inventories. Quantities will be automatically tracked in the
-          clinic&apos;s inventory you&apos;re working on. To add product
-          quantity to this clinic, go to Manage Inventory.
+          clinic&apos;s inventory you&apos;re working on.
         </p>
       </div>
       <Separator />

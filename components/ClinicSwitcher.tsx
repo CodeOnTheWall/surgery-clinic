@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 // Prisma Client Clinic Model
 import { Clinic } from "@prisma/client";
 // Components
-import { useClinicModal } from "@/hooks/UseClinicModal";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
@@ -45,9 +44,6 @@ export default function ClinicSwitcher({
   const { data: session } = useSession();
 
   const isSystemAdmin = session?.user.roles.includes("SYSTEMADMIN");
-
-  // if this gets called, the clinicModal gets opened
-  const onOpen = useClinicModal((state) => state.onOpen);
 
   const params = useParams();
   const router = useRouter();

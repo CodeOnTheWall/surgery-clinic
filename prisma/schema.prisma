@@ -82,75 +82,51 @@ enum Role {
 
 model Clinic {
   // below 3 created by prisma (id of store etc)
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  name              String
-  clinicLocationTag String
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  name               String
+  clinicLocationTag  String
 
   // targetting the field 'userIDs' and referencing 'id' from User schema
-  userIDs           String[]  @db.ObjectId
-  users             User[]    @relation(fields: [userIDs], references: [id])
-
-  inventory         Inventory?
-}
-
-model Inventory {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-
-  // targetting the field 'userIDs' and referencing 'id' from User schema
-  clinicId          String    @db.ObjectId @unique
-  clinic            Clinic    @relation(fields: [clinicId], references: [id])
-  
-  productIDs        String[]  @db.ObjectId
-  products          Product[] @relation(fields: [productIDs], references: [id])
+  userIDs            String[]  @db.ObjectId
+  users              User[]    @relation(fields: [userIDs], references: [id])
 
   productInventories ProductInventory[]
-
-  // products          Product[]
 }
 
 
 model Product {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  upc               String
-  name              String
-  description       String
-  detail            String?
-  manufacturer      String
-  vendor            String?
-  type              String?
-  // quantity of individual items
-  quantity          Int?
-  // quantity of items in a box, null if the product isnt a box
-  boxQuantity       Int?
-
-   // self-relation for box and items
-  boxId             String?   @db.ObjectId
-  box               Product?  @relation("ProductBox", fields: [boxId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  items             Product[] @relation("ProductBox")
-
-  inventoryIDs      String[]  @db.ObjectId
-  inventories       Inventory[] @relation(fields: [inventoryIDs], references: [id])
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  upc                String
+  name               String    @unique
+  description        String
+  detail             String?
+  manufacturer       String
+  vendor             String?
+  type               String?
 
   productInventories ProductInventory[]
 
-  // 1 to many relationship with Inventory model
-  // inventoryId       String    @db.ObjectId
-  // inventory         Inventory @relation(fields: [inventoryId], references: [id])
+  
 }
 
 model ProductInventory {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  inventoryId       String    @db.ObjectId
-  inventory         Inventory @relation(fields: [inventoryId], references: [id])
+  
+  clinicId          String    @db.ObjectId
+  clinic            Clinic    @relation(fields: [clinicId], references: [id])
+ 
   productId         String    @db.ObjectId
   product           Product   @relation(fields: [productId], references: [id])
-  quantity          Int
+  
+  quantity          Int?
+  
+  boxId             String?   @db.ObjectId
+  box               ProductInventory? @relation("BoxContainsItems", fields: [boxId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  boxItems          ProductInventory[] @relation("BoxContainsItems")
 }
 
 

@@ -19,7 +19,7 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Modal from "../ui/Modal";
-import { useClinicModal } from "@/hooks/UseClinicModal";
+import { useProductModal } from "@/hooks/UseProductModal";
 
 // zod schemas
 const formSchema = z.object({
@@ -40,10 +40,10 @@ const formSchema = z.object({
 // extract the inferred type
 type FormSchema = z.infer<typeof formSchema>;
 
-export default function ClinicModal() {
+export default function ProductModal() {
   // zustand state management
-  const isOpen = useClinicModal((state) => state.isOpen);
-  const onClose = useClinicModal((state) => state.onClose);
+  const isOpen = useProductModal((state) => state.isOpen);
+  const onClose = useProductModal((state) => state.onClose);
 
   const [isloading, setIsLoading] = useState(false);
 

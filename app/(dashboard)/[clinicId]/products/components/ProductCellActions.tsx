@@ -11,16 +11,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserColumn } from "./UserColumns";
 import { Button } from "@/components/ui/button";
 import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
 import AlertModal from "@/components/modals/AlertModal";
+import { ProductColumn } from "./ProductColumn";
 
 interface CellActionProps {
-  data: UserColumn;
+  data: ProductColumn;
 }
 
-export default function UserCellActions({ data }: CellActionProps) {
+export default function ProductCellActions({ data }: CellActionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,31 +35,31 @@ export default function UserCellActions({ data }: CellActionProps) {
   const onDelete = async () => {
     try {
       setIsLoading(true);
-      await fetch(`/api/admin/users/${data.id}`, {
+      const response = await fetch(`/api/admin/clinics/${data.id}`, {
         method: "DELETE",
       });
       // router.refresh();
-      // router.push(`/${params.clinicId}/admin/users`);
+      // router.push(`/${params.clinicId}/admin/clinics`);
       // below method that has less bugs since it causes a full page reload
       // with method below, the modal goes away
-      window.location.assign(`/${params.clinicId}/admin/users`);
+      window.location.assign(`/${params.clinicId}/admin/clinics/`);
 
-      toast.success("User deleted");
+      toast.success("Clinic Deleted");
     } catch (error) {
       toast.error(
-        "Make sure you have deleted all Clinics with this User first"
+        "Make sure you have managed all inventory under this Clinic first"
       );
     } finally {
-      setIsLoading(false);
       setIsOpen(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <AlertModal
-        title="DELETE USER"
-        description="THIS ACTION CANT BE UNDONE"
+        title="DELETE CLINIC"
+        description="Make sure you have managed all inventory under this Clinic first"
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onDelete}
@@ -83,7 +83,7 @@ export default function UserCellActions({ data }: CellActionProps) {
             // we have the id since the passed in data gets the id automatically
             // from the row
             onClick={() =>
-              router.push(`/${params.clinicId}/admin/users/${data.id}`)
+              router.push(`/${params.clinicId}/admin/clinics/${data.id}`)
             }
           >
             <Edit className=" mr-2 h-4 w-4" />
