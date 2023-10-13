@@ -1,12 +1,15 @@
 "use client";
 
+// React
+import { useState } from "react";
 // Next
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 // Components
 import Heading from "@/components/ui/Heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+// 3rd Party Libraries
+import { toast } from "react-hot-toast";
 
 interface ManageProductInventoryProps {
   formattedInventory: {
@@ -21,40 +24,68 @@ export default function ManageProductInventory({
   formattedInventory,
 }: ManageProductInventoryProps) {
   const params = useParams();
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
 
   // State for the selected product and the quantity to add or delete
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(
+    formattedInventory[0].id
+  );
   const [quantity, setQuantity] = useState(0);
   const [boxQuantity, setBoxQuantity] = useState(0);
   const [quantityInsideBox, setQuantityInsideBox] = useState(0);
 
-  // Function to handle the change of the selected product
+  console.log(
+    "quantity",
+    quantity,
+    "clinicId",
+    params.clinicId,
+    "selectedProduct",
+    selectedProduct
+  );
+
+  // option select
   const handleProductChange = (e: any) => {
     setSelectedProduct(e.target.value);
   };
 
-  // Function to handle the change of the quantity
   const handleQuantityChange = (e: any) => {
     setQuantity(e.target.value);
   };
+
+  const handleAddQuantity = async (addOrDelete: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/productInventory/${selectedProduct}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          quantity: quantity,
+          productInventoryId: selectedProduct,
+          addOrDelete: addOrDelete,
+        }),
+      });
+      const responseData = await response.json();
+
+      router.refresh();
+      router.push(`/${params.clinicId}/products`);
+      toast.success(`${responseData.message}`);
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleBoxQuantityChange = (e: any) => {
     setBoxQuantity(e.target.value);
   };
+
   const handleQuantityInsideBoxChange = (e: any) => {
     setQuantityInsideBox(e.target.value);
   };
 
-  // Function to handle the addition of product quantity
-  const handleAddQuantity = async () => {
-    // Add your logic here to add the quantity to the selected product
-  };
-
-  // Function to handle the deletion of product quantity
-  const handleDeleteQuantity = async () => {
-    // Add your logic here to delete the quantity from the selected product
-  };
+  const handleAddBoxQuantity = async () => {};
 
   return (
     <>
@@ -79,10 +110,13 @@ export default function ManageProductInventory({
           value={quantity}
           onChange={handleQuantityChange}
         />
-        <Button disabled={isLoading} onClick={handleAddQuantity}>
+        <Button disabled={isLoading} onClick={() => handleAddQuantity("ADD")}>
           Add Quantity
         </Button>
-        <Button disabled={isLoading} onClick={handleDeleteQuantity}>
+        <Button
+          disabled={isLoading}
+          onClick={() => handleAddQuantity("DELETE")}
+        >
           Delete Quantity
         </Button>
       </div>
@@ -104,11 +138,11 @@ export default function ManageProductInventory({
               value={boxQuantity}
               onChange={handleBoxQuantityChange}
             />
-            <Button disabled={isLoading} onClick={handleAddQuantity}>
+            <Button disabled={isLoading} onClick={handleBoxQuantityChange}>
               Add Box Quantity
             </Button>
             {/* might not need this as logic will delete from box first */}
-            <Button disabled={isLoading} onClick={handleDeleteQuantity}>
+            <Button disabled={isLoading} onClick={handleBoxQuantityChange}>
               Delete Box Quantity
             </Button>
           </div>
@@ -120,11 +154,11 @@ export default function ManageProductInventory({
               value={quantityInsideBox}
               onChange={handleQuantityInsideBoxChange}
             />
-            <Button disabled={isLoading} onClick={handleAddQuantity}>
+            <Button disabled={isLoading} onClick={handleAddBoxQuantity}>
               Add Quantity Inside Box
             </Button>
             {/* might not need this as logic will delete from box first */}
-            <Button disabled={isLoading} onClick={handleDeleteQuantity}>
+            <Button disabled={isLoading} onClick={handleAddBoxQuantity}>
               Delete Quantity Inside Box
             </Button>
           </div>

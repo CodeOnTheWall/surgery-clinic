@@ -48,7 +48,6 @@ export default async function ProductsClientPage({
     name: productInventory.product.name!,
   }));
 
-  console.log(formattedInventory);
   return (
     <div className=" flex-col">
       <div className=" flex-1 space-y-4 p-8 pt-6">
